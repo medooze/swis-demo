@@ -1,0 +1,21 @@
+{
+  "name": "swis-demo-server",
+  "version": "0.0.1",
+  "description": "",
+  "author": "eFace2Face",
+  "license": "All Rights Reserved",
+  "main": "index.js",
+  "dependencies": {
+    "debug": "^2.2.0",
+    "protoo": "^0.3.1"
+  },
+  "devDependencies": {
+    "gulp": "git+https://github.com/gulpjs/gulp.git#4.0",
+    "gulp-jshint": "^2.0.0",
+    "jshint": "^2.9.2",
+    "jshint-stylish": "^2.2.0"
+  },
+  "scripts": {
+    "start": "node index.js"
+  }
+}

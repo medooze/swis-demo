@@ -1,0 +1,56 @@
+<template name="Button">
+
+	<div class="Button {{#if running}}running{{/if}}">
+		{{#unless running}}
+		<p>start swis</p>
+		{{else}}
+		<p>stop swis</p>
+		{{/unless}}
+	</div>
+
+</template>
+
+<script>
+	var debug = require('debug')('swis-widget:Button');
+	var debugerror = require('debug')('swis-widget:ERROR:Button');
+	debugerror.log = console.warn.bind(console);
+
+	jquery.widget('swis.Button',
+	{
+		_create: function()
+		{
+			var self = this;
+
+			this._running = new jquery.Meteor.ReactiveVar(false);
+
+			this.element
+				.blaze(templates.Button)
+				.reactive('running', this._running)
+				.render()
+				.on('click.Button', function(event)
+				{
+					debug('"click" event');
+
+					if (!self._running.get())
+						self._trigger(':start', event);
+					else
+						self._trigger(':stop', event);
+				});
+		},
+
+		_destroy: function()
+		{
+			this.element
+				.unblaze()
+				.off('.Button')
+				.empty();
+		},
+
+		setRunning: function(value)
+		{
+			debug('setRunning() [value:%s]', !!value);
+
+			this._running.set(!!value);
+		}
+	});
+</script>

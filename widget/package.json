@@ -1,0 +1,35 @@
+{
+  "name": "swis-widget",
+  "version": "0.0.1",
+  "description": "",
+  "author": "eFace2Face",
+  "license": "All Rights Reserved",
+  "main": "index.js",
+  "dependencies": {
+    "debug": "^2.2.0",
+    "inherits": "^2.0.1",
+    "jquery": "^2.2.3",
+    "jquery-meteor-blaze": "^1.3.1",
+    "jquery-ui": "^1.10.5",
+    "lodash": "^4.11.2",
+    "protoo-client": "^0.3.0",
+    "random-string": "^0.1.2",
+    "rtcninja": "^0.6.5",
+    "swis": "eface2face/swis.git",
+    "toastr": "^2.1.2"
+  },
+  "devDependencies": {
+    "brfs": "^1.4.3",
+    "browser-sync": "^2.12.3",
+    "browserify": "^13.0.0",
+    "gulp": "gulpjs/gulp.git#4.0",
+    "gulp-less": "^3.0.5",
+    "gulp-rename": "^1.2.2",
+    "gulp-stylus": "^2.3.1",
+    "jquery-widget-compiler": "^1.2.0",
+    "mkdirp": "^0.5.1",
+    "nib": "^1.1.0",
+    "vinyl-buffer": "^1.0.0",
+    "vinyl-source-stream": "^1.1.0"
+  }
+}

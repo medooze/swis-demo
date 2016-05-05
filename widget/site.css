@@ -1,0 +1,14 @@
+body {
+  padding:0;
+  margin:0;
+  background-image: -webkit-linear-gradient(top left,
+    rgb(238, 130, 238),
+    rgb(75, 0, 130) 10.0%,
+    rgb(0, 128, 0) 20.0%,
+    rgb(0, 0, 255) 35.0%,
+    rgb(255, 255, 0) 50.0%,
+    #FFA500 60.0%,
+    #FF0000 75.0%,
+    #000 90%);
+    background-attachment: fixed;
+}
