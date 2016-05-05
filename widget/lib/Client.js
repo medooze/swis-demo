@@ -7,11 +7,11 @@ var inherits = require('inherits');
 var protooClient = require('protoo-client');
 var rtcninja = require('rtcninja');
 var swis = require('swis');
-var randomString = require('random-string');
 
+var settings = require('./settings');
 var notifications = require('./notifications');
 
-function Client(settings)
+function Client()
 {
 	debug('new() [settings:%o]', settings);
 
@@ -19,10 +19,7 @@ function Client(settings)
 	EventEmitter.call(this);
 
 	var self = this;
-	var url = settings.protooUrl + '?username=' + settings.local.username + '&uuid=' + randomString({ length: 6 });
-
-	// Store settings
-	this._settings = settings;
+	var url = settings.protooUrl + '?username=' + settings.local.username + '&uuid=' + settings.local.uuid;
 
 	// Closed flag
 	this._closed = false;
@@ -101,11 +98,11 @@ Client.prototype._invite = function()
 	debug('_invite()');
 
 	var self = this;
-	var protooPath = '/users/' + this._settings.remote.username + '/' + this._settings.remote.uuid;
+	var protooPath = '/users/' + settings.remote.username + '/' + settings.remote.uuid;
 
 	this._pc = new rtcninja.RTCPeerConnection(
 		{
-			iceServers       : this._settings.iceServers,
+			iceServers       : settings.iceServers,
 			gatheringTimeout : 2000
 		});
 

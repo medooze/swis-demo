@@ -1,11 +1,17 @@
 <template name="Button">
 
-	<div class="Button {{#if running}}running{{/if}}">
+	<div class="Button {{#if running}}running{{/if}} {{#if showInput}}input{{/if}}">
 		{{#unless running}}
 		<p>start swis</p>
 		{{else}}
 		<p>stop swis</p>
 		{{/unless}}
+
+		{{#if showInput}}
+		<form data-id="swis-code-form">
+			<input type="text" required placeholder="reflector code">
+		</form>
+		{{/if}}
 	</div>
 
 </template>
@@ -22,20 +28,36 @@
 			var self = this;
 
 			this._running = new jquery.Meteor.ReactiveVar(false);
+			this._showInput = new jquery.Meteor.ReactiveVar(false);
 
 			this.element
 				.blaze(templates.Button)
-				.reactive('running', this._running)
+				.reactive('running',   this._running)
+				.reactive('showInput', this._showInput)
 				.render()
 				.on('click.Button', function(event)
 				{
+					if (self._showInput.get())
+						return;
+
 					debug('"click" event');
 
 					if (!self._running.get())
 						self._trigger(':start', event);
 					else
 						self._trigger(':stop', event);
-				});
+				})
+				.on('submit.Button', '[data-id="swis-code-form"]', function(event)
+				{
+					debug('"submit" event');
+
+					event.preventDefault();
+
+					var input = event.currentTarget.querySelector('input');
+
+					self._trigger(':code', event, { code: input.value });
+				})
+
 		},
 
 		_destroy: function()
@@ -51,6 +73,23 @@
 			debug('setRunning() [value:%s]', !!value);
 
 			this._running.set(!!value);
+		},
+
+		showInput: function()
+		{
+			debug('showInput()');
+
+			this._showInput.set(true);
+
+			jquery.Meteor.Tracker.flush();
+			this.element.find('input').focus();
+		},
+
+		hideInput: function()
+		{
+			debug('hideInput()');
+
+			this._showInput.set(false);
 		}
 	});
 </script>

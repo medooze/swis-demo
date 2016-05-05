@@ -31,7 +31,33 @@ document.body.appendChild(script);
 
 ### Reflector
 
-Run the application:
+Open the [demo site](https://dev.ef2f.com/html/swis/reflector/).
+
+
+## Advanced
+
+All the components can be executed locally:
+
+
+### Server
+
+```bash
+$ cd server
+$ npm i
+$ npm start
+```
+
+
+### Widget
+
+```bash
+$ cd widget
+$ npm i
+$ npm start
+```
+
+
+### Reflector
 
 ```bash
 $ cd reflector
@@ -39,9 +65,3 @@ $ npm i
 $ npm start
 ```
 
-
-## Advanced
-
-All the components can be executed locally.
-
-*TBD*

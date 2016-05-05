@@ -8,9 +8,8 @@ var lodash = require('lodash');
 var rtcninja = require('rtcninja');
 
 var Client = require('./lib/Client');
+var settings = require('./lib/settings');
 var notifications = require('./lib/notifications');
-
-var settings = require('./settings.json');
 
 require('jquery-ui/core');
 require('jquery-ui/widget');
@@ -19,6 +18,8 @@ require('./build')(jquery);
 
 // Single Client instance
 var client = null;
+// Button widget
+var buttonWidget = null;
 
 jquery(document).ready(function()
 {
@@ -71,26 +72,59 @@ function insertButton()
 	tag.dataset.id = 'swis-button-container';
 	document.body.appendChild(tag);
 
-	var buttonWidget = jquery(tag)
+	buttonWidget = jquery(tag)
 		.Button()
 		.on('button:start', function()
 		{
 			debug('"button:start" event');
 
-			buttonWidget.setRunning(true);
-
-			client = new Client(settings);
-
-			client.on('close', function()
-			{
-				buttonWidget.setRunning(false);
-			});
+			if (settings.remote.username)
+				runClient();
+			else
+				showReflectorCodeInput();
 		})
 		.on('button:stop', function()
 		{
 			debug('"button:stop" event');
 
-			client.close();
+			stopClient();
+		})
+		.on('button:code', function(event, data)
+		{
+			debug('"button:code" event [data:%o]', data);
+
+			settings.setRemoteUsername(data.code);
+
+			runClient();
 		})
 		.data('swis-Button');
+}
+
+function runClient()
+{
+	debug('runClient()');
+
+	buttonWidget.hideInput();
+	buttonWidget.setRunning(true);
+
+	client = new Client();
+
+	client.on('close', function()
+	{
+		buttonWidget.setRunning(false);
+	});
+}
+
+function stopClient()
+{
+	debug('stopClient()');
+
+	client.close();
+}
+
+function showReflectorCodeInput()
+{
+	debug('showReflectorCodeInput()');
+
+	buttonWidget.showInput();
 }
