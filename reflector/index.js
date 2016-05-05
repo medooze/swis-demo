@@ -6,11 +6,10 @@ var fs = require('fs');
 var jquery = require('jquery');
 var lodash = require('lodash');
 var rtcninja = require('rtcninja');
+var Clipboard = require('clipboard');
 
 var Agent = require('./lib/Agent');
 var notifications = require('./lib/notifications');
-
-var settings = require('./settings.json');
 
 require('jquery-ui/core');
 require('jquery-ui/widget');
@@ -24,7 +23,7 @@ jquery(document).ready(function()
 {
 	if (checkBrowserSupported())
 	{
-		insertReflector();
+		runAgent();
 	}
 });
 
@@ -47,9 +46,29 @@ function checkBrowserSupported()
 	}
 }
 
-function insertReflector()
+function runAgent()
 {
-	debug('insertReflector()');
+	debug('runAgent()');
 
-	agent = new Agent(settings);
+	agent = new Agent();
+
+	agent.on('code', function(username)
+	{
+		var elem = document.querySelector('[data-id="swis-reflector-code"]');
+
+		elem.innerHTML = username;
+
+		var clipboard = new Clipboard(elem,
+			{
+				text : function(trigger)
+				{
+					return username;
+				}
+			});
+
+		clipboard.on('success', function(event)
+		{
+			notifications.success('reflector code copied into your clipboard');
+		});
+	});
 }

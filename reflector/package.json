@@ -6,6 +6,7 @@
   "license": "All Rights Reserved",
   "main": "index.js",
   "dependencies": {
+    "clipboard": "^1.5.10",
     "debug": "^2.2.0",
     "inherits": "^2.0.1",
     "jquery": "^2.2.3",
@@ -13,6 +14,7 @@
     "jquery-ui": "^1.10.5",
     "lodash": "^4.11.2",
     "protoo-client": "^0.3.0",
+    "random-string": "^0.1.2",
     "rtcninja": "^0.6.5",
     "swis": "eface2face/swis.git",
     "toastr": "^2.1.2"

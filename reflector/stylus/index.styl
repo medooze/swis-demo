@@ -20,17 +20,36 @@ body
 	flex-direction: column
 	overflow: hidden
 
-[data-id="swis-reflector-mirror"]
-	@require "./reset"
+	> .header
+		flex: 0 0 auto
+		height: 100px
+		text-align: center
+		font-family: Helvetica, monospace
+		font-size: 30px
+		line-height: 100px
+		color: #fff
 
-	flex: 100 100 auto
-	display: flex
-	flex-direction: column
-	margin: 100px
-	overflow: hidden
-	background-color: rgba(#fff, 0.85)
-	border: 1px solid #333
-	box-shadow: 0px 0px 5px 1px rgba(#333, 0.75)
+		> [data-id="swis-reflector-code"] {
+			color: orange
+			cursor: pointer
+			transition-duration: 0.2s
+
+			&:hover {
+				color: yellow
+			}
+		}
+
+	[data-id="swis-reflector-mirror"]
+		@require "./reset"
+
+		flex: 100 100 auto
+		display: flex
+		flex-direction: column
+		margin: 0 100px 100px 100px
+		overflow: hidden
+		background-color: rgba(#fff, 0.85)
+		border: 1px solid #333
+		box-shadow: 0px 0px 5px 1px rgba(#333, 0.75)
 
 // Others
 @require "./toastr"

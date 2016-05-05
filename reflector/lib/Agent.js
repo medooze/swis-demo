@@ -8,9 +8,10 @@ var protooClient = require('protoo-client');
 var rtcninja = require('rtcninja');
 var swis = require('swis');
 
+var settings = require('./settings');
 var notifications = require('./notifications');
 
-function Agent(settings)
+function Agent()
 {
 	debug('new() [settings:%o]', settings);
 
@@ -19,9 +20,6 @@ function Agent(settings)
 
 	var self = this;
 	var url = settings.protooUrl + '?username=' + settings.local.username + '&uuid=' + settings.local.uuid;
-
-	// Store settings
-	this._settings = settings;
 
 	// Closed flag
 	this._closed = false;
@@ -40,6 +38,8 @@ function Agent(settings)
 	this._protoo.on('online', function(reattempt)
 	{
 		notifications.success('protoo connected');
+
+		self.emit('code', settings.local.username);
 	});
 
 	this._protoo.on('offline', function()
@@ -97,7 +97,7 @@ Agent.prototype._handleSession = function(session)
 
 	this._pc = new rtcninja.RTCPeerConnection(
 		{
-			iceServers       : this._settings.iceServers,
+			iceServers       : settings.iceServers,
 			gatheringTimeout : 2000
 		});
 
