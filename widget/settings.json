@@ -1,5 +1,6 @@
 {
-	"protooUrl" : "ws://localhost:8086/cobrowse/",
+	"__protooUrl" : "ws://localhost:8086/cobrowse/",
+	"protooUrl" : "wss://dev.ef2f.com/cobrowse/",
 	"local"     :
 	{
 		"username" : "observer"

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
-// process.env.DEBUG = 'swis* *ERROR*';
-process.env.DEBUG = '*';
+process.title = 'swis-signaling-server';
+process.env.DEBUG = 'protoo* swis* *ERROR*';
 
 var debug = require('debug')('swis');
 var debugerror = require('debug')('swis:ERROR');

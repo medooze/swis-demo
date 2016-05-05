@@ -92,16 +92,7 @@ Agent.prototype._handleSession = function(session)
 
 	session.on('close', function()
 	{
-		notifications.info('protoo session closed');
-
-		self._session = null;
-
-		// End PeerConnection
-		if (self._pc && self._pc.signalingState !== 'closed')
-		{
-			self._pc.close();
-			self._pc = null;
-		}
+		self._closeSession();
 	});
 
 	this._pc = new rtcninja.RTCPeerConnection(
@@ -118,8 +109,6 @@ Agent.prototype._handleSession = function(session)
 			self._pc.oniceconnectionstatechange = null;
 
 			notifications.success('ICE connected');
-
-			self._runSwisReflector();
 		}
 	};
 
@@ -129,6 +118,16 @@ Agent.prototype._handleSession = function(session)
 			negotiated : true,
 			id         : 666
 		});
+
+	this._datachannel.binaryType = 'arraybuffer';
+
+
+	this._datachannel.onopen = function()
+	{
+		notifications.info('DataChannel open');
+
+		self._runSwisReflector();
+	};
 
 	this._pc.setRemoteDescription(
 		new rtcninja.RTCSessionDescription(
@@ -185,13 +184,43 @@ Agent.prototype._runSwisReflector = function()
 {
 	debug('_runSwisReflector()');
 
-	var mirrorContainer = document.querySelector('[data-id="swis-reflector-container"]');
+	var mirror = document.querySelector('[data-id="swis-reflector-mirror"]');
 
-	this._reflector = new swis.Reflector(this._datachannel);
+	this._reflector = new swis.Reflector(this._datachannel,
+		{
+			blob : false
+		});
 
-	this._reflector.reflect(mirrorContainer);
+	this._reflector.reflect(mirror.contentWindow.document);
 
 	notifications.info('swis reflector running');
+};
+
+Agent.prototype._closeSession = function()
+{
+	debug('_closeSession()');
+
+	notifications.info('protoo session closed');
+
+	this._session = null;
+
+	// End ongoing session
+	if (this._session)
+	{
+		try
+		{
+			this._session.send('end');
+		}
+		catch (error) {}
+	}
+
+	// Close PeerConnection
+	if (this._pc && this._pc.signalingState !== 'closed')
+		this._pc.close();
+
+	// Close swis
+	if (this._reflector)
+		this._reflector.stop();
 };
 
 module.exports = Agent;

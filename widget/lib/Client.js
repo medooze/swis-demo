@@ -77,7 +77,7 @@ Client.prototype.close = function()
 
 	this._closed = true;
 
-	// End PeerConnection
+	// Close PeerConnection
 	if (this._pc && this._pc.signalingState !== 'closed')
 		this._pc.close();
 
@@ -88,6 +88,10 @@ Client.prototype.close = function()
 	// Close Protoo client
 	if (this._protoo.state !== 'offline')
 		this._protoo.close();
+
+	// Close swis
+	if (this._observer)
+		this._observer.stop();
 
 	this.emit('close');
 };
@@ -113,8 +117,6 @@ Client.prototype._invite = function()
 			self._pc.oniceconnectionstatechange = null;
 
 			notifications.success('ICE connected');
-
-			self._runSwisObserver();
 		}
 	};
 
@@ -124,6 +126,15 @@ Client.prototype._invite = function()
 			negotiated : true,
 			id         : 666
 		});
+
+	this._datachannel.binaryType = 'arraybuffer';
+
+	this._datachannel.onopen = function()
+	{
+		notifications.info('DataChannel open');
+
+		self._runSwisObserver();
+	};
 
 	this._pc.createOffer(
 		function(desc)
@@ -212,7 +223,10 @@ Client.prototype._runSwisObserver = function()
 
 	var excluded = '[data-id="swis-button-container"]';
 
-	this._observer = new swis.Observer(this._datachannel);
+	this._observer = new swis.Observer(this._datachannel,
+		{
+			blob : false
+		});
 
 	this._observer.observe(excluded);
 
