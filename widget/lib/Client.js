@@ -77,6 +77,10 @@ Client.prototype.close = function()
 
 	this._closed = true;
 
+	// End PeerConnection
+	if (this._pc && this._pc.signalingState !== 'closed')
+		this._pc.close();
+
 	// End ongoing session
 	if (this._session)
 		this._session.send('end');
@@ -93,61 +97,124 @@ Client.prototype._invite = function()
 	debug('_invite()');
 
 	var self = this;
-	var path = '/users/' + this._settings.remote.username + '/' + this._settings.remote.uuid;
+	var protooPath = '/users/' + this._settings.remote.username + '/' + this._settings.remote.uuid;
 
-	this._pc = new rtcninja.RTCPeerConnection()
+	this._pc = new rtcninja.RTCPeerConnection(
+		{
+			iceServers       : this._settings.iceServers,
+			gatheringTimeout : 2000
+		});
 
-	this._session = this._protoo.session(path, function(res, error)
+	this._pc.oniceconnectionstatechange = function(event)
 	{
-		if (res && res.isProvisional)
+		if (self._pc.iceConnectionState === 'connected' ||
+				self._pc.iceConnectionState === 'completed')
 		{
-			notifications.info('protoo session connecting...');
-		}
-		else if (res && res.isAccept)
-		{
-			notifications.success('protoo session established');
+			self._pc.oniceconnectionstatechange = null;
 
-			// TODO: uncomment
-			// self._swis();
-		}
-		else if (res && res.isReject)
-		{
-			notifications.warning('protoo session rejected: ' + res.status + ' ' + res.reason);
-		}
-		else if (error)
-		{
-			notifications.error('protoo session error: ' + error.toString());
-		}
-	});
+			notifications.success('ICE connected');
 
-	this._session.on('close', function()
+			self._runSwisObserver();
+		}
+	};
+
+	this._datachannel = this._pc.createDataChannel('swis',
+		{
+			protocol   : 'swis',
+			negotiated : true,
+			id         : 666
+		});
+
+	this._pc.createOffer(
+		function(desc)
+		{
+			self._pc.setLocalDescription(desc,
+				function() {},
+				function(error)
+				{
+					notifications.error('setLocalDescription() failed: ' + error.toString());
+
+					self.close();
+				});
+		},
+		function(error)
+		{
+			notifications.error('createOffer() failed: ' + error.toString());
+
+			self.close();
+		});
+
+	this._pc.onicecandidate = function(event)
 	{
-		notifications.info('protoo session closed');
+		if (!event.candidate)
+		{
+			self._pc.onicecandidate = null;
+			createSession();
+		}
+	};
 
-		self._session = null;
-		self.close();
-	});
+	function createSession()
+	{
+		self._session = self._protoo.session(protooPath,
+			{
+				offer : self._pc.localDescription.sdp
+			},
+			function(res, error)
+			{
+				if (res && res.isProvisional)
+				{
+					notifications.info('protoo session connecting...');
+				}
+				else if (res && res.isAccept)
+				{
+					notifications.success('protoo session established');
+
+					self._pc.setRemoteDescription(
+						new rtcninja.RTCSessionDescription(
+							{
+								type : 'answer',
+								sdp  : res.data.answer
+							}),
+							function()
+							{
+								notifications.info('ICE connecting...');
+							},
+							function(error)
+							{
+								notifications.error('setRemoteDescription() failed: ' + error.toString());
+
+								self._session.send('end');
+							});
+				}
+				else if (res && res.isReject)
+				{
+					notifications.warning('protoo session rejected: ' + res.status + ' ' + res.reason);
+				}
+				else if (error)
+				{
+					notifications.error('protoo session error: ' + error.toString());
+				}
+			});
+
+		self._session.on('close', function()
+		{
+			notifications.info('protoo session closed');
+
+			self._session = null;
+			self.close();
+		});
+	}
 };
 
-Client.prototype._swis = function()
+Client.prototype._runSwisObserver = function()
 {
-	debug('_swis()');
+	debug('_runSwisObserver()');
 
-	var self = this;
-	var swisInterface =
-	{
-		send      : function(data)
-		{
-			console.warn('------------------ send() [data:%o]', data);
+	this._observer = new swis.Observer(this._datachannel);
 
-			self._session.send('swis', data);
-		},
+	this._observer.observe();
 
-		// onmessage :
-	}
-
-	this._observer = new swis.Observer
-
+	notifications.info('swis observer running');
 };
 
 module.exports = Client;

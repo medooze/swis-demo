@@ -5,6 +5,7 @@ debugerror.log = console.warn.bind(console);
 var fs = require('fs');
 var jquery = require('jquery');
 var lodash = require('lodash');
+var rtcninja = require('rtcninja');
 
 var Agent = require('./lib/Agent');
 var notifications = require('./lib/notifications');
@@ -21,8 +22,30 @@ var agent = null;
 
 jquery(document).ready(function()
 {
-	insertReflector()
+	if (checkBrowserSupported())
+	{
+		insertReflector();
+	}
 });
+
+function checkBrowserSupported()
+{
+	debug('checkBrowserSupported()');
+
+	// Load rtcninja
+	rtcninja();
+
+	if (rtcninja.hasWebRTC())
+	{
+		return true;
+	}
+	else
+	{
+		notifications.warning('WebRTC not supported');
+
+		return false;
+	}
+}
 
 function insertReflector()
 {
