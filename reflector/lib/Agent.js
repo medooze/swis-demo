@@ -11,7 +11,7 @@ var swis = require('swis');
 var settings = require('./settings');
 var notifications = require('./notifications');
 
-function Agent()
+function Agent(viewWidget)
 {
 	debug('new() [settings:%o]', settings);
 
@@ -21,6 +21,9 @@ function Agent()
 	var self = this;
 	var url = settings.protooUrl + '?username=' + settings.local.username + '&uuid=' + settings.local.uuid;
 
+	// View widget
+	this._viewWidget = viewWidget;
+
 	// Closed flag
 	this._closed = false;
 
@@ -29,27 +32,27 @@ function Agent()
 
 	this._protoo.on('connecting', function(reattempt)
 	{
-		if (reattempt === 0)
-			notifications.info('protoo connecting...');
-		else
-			notifications.info('protoo reconnecting...');
+		if (reattempt > 0)
+			notifications.info('reconnecting to the server...');
 	});
 
 	this._protoo.on('online', function(reattempt)
 	{
-		notifications.success('protoo connected');
+		notifications.success('online');
 
-		self.emit('code', settings.local.username);
+		if (reattempt === 0)
+			self._viewWidget.online({ code: settings.local.username });
 	});
 
-	this._protoo.on('offline', function()
+	this._protoo.on('offline', function(reattempt)
 	{
-		notifications.error('protoo disconnected');
+		if (reattempt === 0)
+			notifications.error('server connection closed');
 	});
 
 	this._protoo.on('session', function(session, req)
 	{
-		notifications.success('protoo session requested...');
+		notifications.info('session requested');
 
 		self._handleSession(session);
 	});
@@ -87,7 +90,7 @@ Agent.prototype._handleSession = function(session)
 
 	session.on('open', function()
 	{
-		notifications.success('protoo session established');
+		debug('session established');
 	});
 
 	session.on('close', function()
@@ -108,7 +111,7 @@ Agent.prototype._handleSession = function(session)
 		{
 			self._pc.oniceconnectionstatechange = null;
 
-			notifications.success('ICE connected');
+			debug('ICE connected');
 		}
 	};
 
@@ -124,7 +127,7 @@ Agent.prototype._handleSession = function(session)
 
 	this._datachannel.onopen = function()
 	{
-		notifications.info('DataChannel open');
+		debug('datachannel open');
 
 		self._runSwisReflector();
 	};
@@ -143,7 +146,7 @@ Agent.prototype._handleSession = function(session)
 					self._pc.setLocalDescription(desc,
 						function()
 						{
-							notifications.info('ICE connecting...');
+							notifications.info('establishing channel...');
 						},
 						function(error)
 						{
@@ -180,27 +183,11 @@ Agent.prototype._handleSession = function(session)
 	};
 };
 
-Agent.prototype._runSwisReflector = function()
-{
-	debug('_runSwisReflector()');
-
-	var mirror = document.querySelector('[data-id="swis-reflector-mirror"]');
-
-	this._reflector = new swis.Reflector(this._datachannel,
-		{
-			blob : false
-		});
-
-	this._reflector.reflect(mirror.contentWindow.document);
-
-	notifications.info('swis reflector running');
-};
-
 Agent.prototype._closeSession = function()
 {
 	debug('_closeSession()');
 
-	notifications.info('protoo session closed');
+	notifications.info('session ended');
 
 	this._session = null;
 
@@ -221,6 +208,22 @@ Agent.prototype._closeSession = function()
 	// Close swis
 	if (this._reflector)
 		this._reflector.stop();
+};
+
+Agent.prototype._runSwisReflector = function()
+{
+	debug('_runSwisReflector()');
+
+	var mirror = this._viewWidget.getMirrorElem();
+
+	this._reflector = new swis.Reflector(this._datachannel,
+		{
+			blob : false
+		});
+
+	this._reflector.reflect(mirror.contentWindow.document);
+
+	notifications.success('swis running');
 };
 
 module.exports = Agent;

@@ -29,22 +29,20 @@ function Client()
 
 	this._protoo.on('connecting', function(reattempt)
 	{
-		if (reattempt === 0)
-			notifications.info('protoo connecting...');
-		else
-			notifications.info('protoo reconnecting...');
+		if (reattempt > 0)
+			notifications.info('reconnecting to the server...');
 	});
 
 	this._protoo.on('online', function(reattempt)
 	{
-		notifications.success('protoo connected');
+		debug('online');
 
 		self._invite();
 	});
 
 	this._protoo.on('offline', function()
 	{
-		notifications.error('protoo disconnected');
+		notifications.error('server connection closed');
 
 		self.close();
 	});
@@ -83,8 +81,7 @@ Client.prototype.close = function()
 		this._session.send('end');
 
 	// Close Protoo client
-	if (this._protoo.state !== 'offline')
-		this._protoo.close();
+	this._protoo.close();
 
 	// Close swis
 	if (this._observer)
@@ -113,7 +110,7 @@ Client.prototype._invite = function()
 		{
 			self._pc.oniceconnectionstatechange = null;
 
-			notifications.success('ICE connected');
+			debug('ICE connected');
 		}
 	};
 
@@ -128,7 +125,7 @@ Client.prototype._invite = function()
 
 	this._datachannel.onopen = function()
 	{
-		notifications.info('DataChannel open');
+		debug('datachannel open');
 
 		self._runSwisObserver();
 	};
@@ -171,11 +168,11 @@ Client.prototype._invite = function()
 			{
 				if (res && res.isProvisional)
 				{
-					notifications.info('protoo session connecting...');
+					notifications.info('waiting for remote peer to join...');
 				}
 				else if (res && res.isAccept)
 				{
-					notifications.success('protoo session established');
+					debug('session established');
 
 					self._pc.setRemoteDescription(
 						new rtcninja.RTCSessionDescription(
@@ -185,7 +182,7 @@ Client.prototype._invite = function()
 							}),
 							function()
 							{
-								notifications.info('ICE connecting...');
+								notifications.info('establishing channel...');
 							},
 							function(error)
 							{
@@ -196,17 +193,17 @@ Client.prototype._invite = function()
 				}
 				else if (res && res.isReject)
 				{
-					notifications.warning('protoo session rejected: ' + res.status + ' ' + res.reason);
+					notifications.warning('session rejected: ' + res.status + ' ' + res.reason);
 				}
 				else if (error)
 				{
-					notifications.error('protoo session error: ' + error.toString());
+					notifications.error('session error: ' + error.toString());
 				}
 			});
 
 		self._session.on('close', function()
 		{
-			notifications.info('protoo session closed');
+			notifications.info('session ended');
 
 			self._session = null;
 			self.close();
@@ -227,7 +224,7 @@ Client.prototype._runSwisObserver = function()
 
 	this._observer.observe(excluded);
 
-	notifications.info('swis observer running');
+	notifications.success('swis running');
 };
 
 module.exports = Client;

@@ -1,0 +1,77 @@
+<template name="View">
+
+	<div class="View">
+		<div class="header {{#if online}}online{{/if}}">
+			<p class="info">your swis reflector code: <span data-id="swis-reflector-code">{{code}}</span></p>
+		</div>
+
+		<iframe data-id="swis-reflector-mirror"></iframe>
+
+		<div class="footer"></div>
+	</div>
+
+</template>
+
+<script>
+	var debug = require('debug')('swis-reflector:View');
+	var debugerror = require('debug')('swis-reflector:ERROR:View');
+	debugerror.log = console.warn.bind(console);
+
+	var Clipboard = require('clipboard');
+
+	var notifications = require('../lib/notifications');
+
+	jquery.widget('swis.View',
+	{
+		_create: function()
+		{
+			var self = this;
+
+			this._online = new jquery.Meteor.ReactiveVar(false);
+			this._code = new jquery.Meteor.ReactiveVar('');
+
+			this.element
+				.blaze(templates.View)
+				.reactive('online', this._online)
+				.reactive('code',   this._code)
+				.render();
+		},
+
+		_destroy: function()
+		{
+			this.element
+				.unblaze()
+				.off('.View')
+				.empty();
+		},
+
+		online: function(data)
+		{
+			debug('online() [data:%o]', data);
+
+			this._online.set(true);
+			this._code.set(data.code);
+
+			var elem = document.querySelector('[data-id="swis-reflector-code"]');
+			var clipboard = new Clipboard(elem,
+				{
+					text : function(trigger)
+					{
+						return data.code;
+					}
+				});
+
+			clipboard.on('success', function(event)
+			{
+				notifications.success('reflector code copied into your clipboard');
+			});
+		},
+
+		getMirrorElem: function()
+		{
+			debug('getMirrorElem()');
+
+			return this.element[0].querySelector('[data-id="swis-reflector-mirror"]');
+		}
+	});
+</script>

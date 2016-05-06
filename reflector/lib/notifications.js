@@ -12,7 +12,7 @@ toastr.options =
 	debug             : false,
 	newestOnTop       : false,
 	progressBar       : false,
-	positionClass     : 'toast-top-right',
+	positionClass     : 'toast-bottom-right',
 	preventDuplicates : false,  // TODO: set true in the future
 	onclick           : null,
 	showDuration      : '200',

@@ -6,7 +6,6 @@ var fs = require('fs');
 var jquery = require('jquery');
 var lodash = require('lodash');
 var rtcninja = require('rtcninja');
-var Clipboard = require('clipboard');
 
 var Agent = require('./lib/Agent');
 var notifications = require('./lib/notifications');
@@ -18,11 +17,14 @@ require('./build')(jquery);
 
 // Single Agent instance
 var agent = null;
+// View widget
+var viewWidget = null;
 
 jquery(document).ready(function()
 {
 	if (checkBrowserSupported())
 	{
+		insertView();
 		runAgent();
 	}
 });
@@ -46,29 +48,18 @@ function checkBrowserSupported()
 	}
 }
 
+function insertView()
+{
+	debug('insertView()');
+
+	viewWidget = jquery(document.body)
+		.View()
+		.data('swis-View');
+}
+
 function runAgent()
 {
 	debug('runAgent()');
 
-	agent = new Agent();
-
-	agent.on('code', function(username)
-	{
-		var elem = document.querySelector('[data-id="swis-reflector-code"]');
-
-		elem.innerHTML = username;
-
-		var clipboard = new Clipboard(elem,
-			{
-				text : function(trigger)
-				{
-					return username;
-				}
-			});
-
-		clipboard.on('success', function(event)
-		{
-			notifications.success('reflector code copied into your clipboard');
-		});
-	});
+	agent = new Agent(viewWidget);
 }
