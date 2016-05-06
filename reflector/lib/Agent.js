@@ -322,6 +322,40 @@ Agent.prototype._runSwisReflector = function()
 		mirror.height = data.height; + (mirror.height - mirror.contentWindow.document.documentElement.clientheight);
 	});
 
+	var remoteCursor;
+	var remoteDocument = mirror.contentWindow.document;
+
+	this._reflector.on('remotecursormove', function(data)
+	{
+		if (!remoteCursor)
+		{
+			remoteCursor = remoteDocument.createElement('div');
+
+			remoteCursor.style['pointer-events'] = 'none';
+			remoteCursor.style['position'] = 'absolute';
+			remoteCursor.style['width'] = '25px';
+			remoteCursor.style['height'] = '25px';
+			remoteCursor.style['line-height'] = '25px';
+			remoteCursor.style['text-align'] = 'center';
+			remoteCursor.style['border-radius'] = '100%';
+			remoteCursor.style['border'] = '1px solid #fff';
+			remoteCursor.style['background-color'] = 'rgba(128, 255, 0, 0.8)';
+			remoteCursor.style['color'] = '#fff';
+			remoteCursor.style['font-size'] = '20px';
+			remoteCursor.style['font-weight'] = 'bold';
+			remoteCursor.style['margin'] = '0px';
+			remoteCursor.style['padding'] = '0px';
+			remoteCursor.style['z-index'] = '9999';
+
+			remoteCursor.innerHTML = '^';
+
+			remoteDocument.documentElement.appendChild(remoteCursor);
+		}
+
+		remoteCursor.style['left'] = data.x + 'px';
+		remoteCursor.style['top'] =  data.y + 'px';
+	});
+
 	notifications.success('swis running');
 };
 
