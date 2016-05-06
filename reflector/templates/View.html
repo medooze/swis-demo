@@ -12,11 +12,17 @@
 
 				{{#if equals state "sessionjoined"}}
 				<button class="secondary" data-action="terminate">TERMINATE SESSION</button>
+				{{#unless paint}}
+				<button class="primary" data-action="paint">PAINT</button>
+				{{else}}
+				<button class="primary" data-action="stoppaint">STOP PAINT</button>
+				<button class="primary" data-action="clearpaint">CLEAR</button>
+				{{/unless}}
 				{{/if}}
 			</div>
 		</div>
 
-		<iframe data-id="swis-reflector-mirror"></iframe>
+		<iframe data-id="swis-reflector-mirror" class="{{#if paint}}paint{{/if}}"></iframe>
 
 		<div class="footer"></div>
 	</div>
@@ -42,12 +48,14 @@
 			this._code = new jquery.Meteor.ReactiveVar('');
 			// 'idle' / 'sessionrequested' / 'sessionjoined'
 			this._state = new jquery.Meteor.ReactiveVar('idle');
+			this._paint = new jquery.Meteor.ReactiveVar(false);
 
 			this.element
 				.blaze(templates.View)
 				.reactive('online', this._online)
 				.reactive('code',   this._code)
 				.reactive('state',  this._state)
+				.reactive('paint',  this._paint)
 				.render()
 				.on('click.View', '[data-action="join"]', function(event)
 				{
@@ -66,6 +74,26 @@
 					debug('"click" in "terminate"');
 
 					self._trigger(':terminate');
+				})
+				.on('click.View', '[data-action="paint"]', function(event)
+				{
+					debug('"click" in "paint"');
+
+					self._paint.set(true);
+					self._trigger(':paint');
+				})
+				.on('click.View', '[data-action="clearpaint"]', function(event)
+				{
+					debug('"click" in "clearpaint"');
+
+					self._trigger(':clearpaint');
+				})
+				.on('click.View', '[data-action="stoppaint"]', function(event)
+				{
+					debug('"click" in "stoppaint"');
+
+					self._paint.set(false);
+					self._trigger(':stoppaint');
 				});
 		},
 
@@ -111,6 +139,11 @@
 			debug('setState() [state:"%s"]', state);
 
 			this._state.set(state);
+
+			if (state === 'idle')
+			{
+				this._paint.set(false);
+			}
 		}
 	});
 </script>

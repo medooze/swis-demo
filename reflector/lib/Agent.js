@@ -43,6 +43,24 @@ function Agent(viewContainer)
 
 			self._terminate();
 		})
+		.on('view:paint', function()
+		{
+			debug('"view:paint');
+
+			self._reflector.paint(true);
+		})
+		.on('view:clearpaint', function()
+		{
+			debug('"view:clearpaint');
+
+			self._reflector.clear();
+		})
+		.on('view:stoppaint', function()
+		{
+			debug('"view:stoppaint');
+
+			self._reflector.paint(false);
+		})
 		.data('swis-View');
 
 	// Closed flag
