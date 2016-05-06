@@ -91,10 +91,16 @@ function Agent(viewContainer)
 
 	this._protoo.on('session', function(session, req)
 	{
-		notifications.info('session requested');
+		notifications.success('session requested');
 
 		self._handleSession(session);
 	});
+
+	// Ringing audio
+	this._ringingAudio = new Audio();
+	this._ringingAudio.src = 'resources/sounds/ringing.mp3';
+	this._ringingAudio.preload = 'auto';
+	this._ringingAudio.loop = true;
 
 	// PeerConnection instance
 	this._pc = null;
@@ -129,13 +135,21 @@ Agent.prototype._handleSession = function(session)
 
 	this._viewWidget.setState('sessionrequested');
 
+	// Play ringing
+	this._ringingAudio.pause();
+	this._ringingAudio.currentTime = 0.0;
+	this._ringingAudio.play();
+
 	session.on('open', function()
 	{
 		debug('session established');
+
+		self._ringingAudio.pause();
 	});
 
 	session.on('close', function()
 	{
+		self._ringingAudio.pause();
 		self._closeSession();
 	});
 };
@@ -281,6 +295,7 @@ Agent.prototype._runSwisReflector = function()
 {
 	debug('_runSwisReflector()');
 
+	var self = this;
 	var mirror = this._viewWidget.getMirrorElem();
 
 	this._reflector = new swis.Reflector(this._datachannel,
@@ -289,6 +304,23 @@ Agent.prototype._runSwisReflector = function()
 		});
 
 	this._reflector.reflect(mirror.contentWindow.document);
+
+	var firstResize = true;
+
+	this._reflector.on('resize', function(data)
+	{
+		if (firstResize)
+		{
+			mirror.width = data.width;
+			mirror.height = data.height;
+			firstResize = false;
+
+			self._viewWidget.visible();
+		}
+
+		mirror.width = data.width + (mirror.width - mirror.contentWindow.document.documentElement.clientWidth);
+		mirror.height = data.height; + (mirror.height - mirror.contentWindow.document.documentElement.clientheight);
+	});
 
 	notifications.success('swis running');
 };

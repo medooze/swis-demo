@@ -16,13 +16,13 @@
 				<button class="primary" data-action="paint">PAINT</button>
 				{{else}}
 				<button class="primary" data-action="stoppaint">STOP PAINT</button>
-				<button class="primary" data-action="clearpaint">CLEAR</button>
+				<button class="primary" data-action="clearpaint">CLEAR PAINT</button>
 				{{/unless}}
 				{{/if}}
 			</div>
 		</div>
 
-		<iframe data-id="swis-reflector-mirror" class="{{#if paint}}paint{{/if}}"></iframe>
+		<iframe data-id="swis-reflector-mirror" class="{{#if mirrorVisible}}visible{{/if}} {{#if paint}}paint{{/if}}"></iframe>
 
 		<div class="footer"></div>
 	</div>
@@ -49,13 +49,15 @@
 			// 'idle' / 'sessionrequested' / 'sessionjoined'
 			this._state = new jquery.Meteor.ReactiveVar('idle');
 			this._paint = new jquery.Meteor.ReactiveVar(false);
+			this._mirrorVisible = new jquery.Meteor.ReactiveVar(false);
 
 			this.element
 				.blaze(templates.View)
-				.reactive('online', this._online)
-				.reactive('code',   this._code)
-				.reactive('state',  this._state)
-				.reactive('paint',  this._paint)
+				.reactive('online',        this._online)
+				.reactive('code',          this._code)
+				.reactive('state',         this._state)
+				.reactive('paint',         this._paint)
+				.reactive('mirrorVisible', this._mirrorVisible)
 				.render()
 				.on('click.View', '[data-action="join"]', function(event)
 				{
@@ -95,6 +97,9 @@
 					self._paint.set(false);
 					self._trigger(':stoppaint');
 				});
+
+			// TODO: TMP
+			window.IFRAME = document.querySelector('iframe');
 		},
 
 		_destroy: function()
@@ -143,7 +148,15 @@
 			if (state === 'idle')
 			{
 				this._paint.set(false);
+				this._mirrorVisible.set(false);
 			}
+		},
+
+		visible: function()
+		{
+			debug('visible()');
+
+			this._mirrorVisible.set(true);
 		}
 	});
 </script>
