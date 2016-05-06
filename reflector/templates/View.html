@@ -3,6 +3,17 @@
 	<div class="View">
 		<div class="header {{#if online}}online{{/if}}">
 			<p class="info">your swis reflector code: <span data-id="swis-reflector-code">{{code}}</span></p>
+
+			<div class="controls">
+				{{#if equals state "sessionrequested"}}
+				<button class="primary" data-action="join">JOIN SESSION</button>
+				<button class="secondary" data-action="reject">REJECT SESSION</button>
+				{{/if}}
+
+				{{#if equals state "sessionjoined"}}
+				<button class="secondary" data-action="terminate">TERMINATE SESSION</button>
+				{{/if}}
+			</div>
 		</div>
 
 		<iframe data-id="swis-reflector-mirror"></iframe>
@@ -29,12 +40,33 @@
 
 			this._online = new jquery.Meteor.ReactiveVar(false);
 			this._code = new jquery.Meteor.ReactiveVar('');
+			// 'idle' / 'sessionrequested' / 'sessionjoined'
+			this._state = new jquery.Meteor.ReactiveVar('idle');
 
 			this.element
 				.blaze(templates.View)
 				.reactive('online', this._online)
 				.reactive('code',   this._code)
-				.render();
+				.reactive('state',  this._state)
+				.render()
+				.on('click.View', '[data-action="join"]', function(event)
+				{
+					debug('"click" in "join"');
+
+					self._trigger(':join');
+				})
+				.on('click.View', '[data-action="reject"]', function(event)
+				{
+					debug('"click" in "reject"');
+
+					self._trigger(':reject');
+				})
+				.on('click.View', '[data-action="terminate"]', function(event)
+				{
+					debug('"click" in "terminate"');
+
+					self._trigger(':terminate');
+				});
 		},
 
 		_destroy: function()
@@ -43,6 +75,13 @@
 				.unblaze()
 				.off('.View')
 				.empty();
+		},
+
+		getMirrorElem: function()
+		{
+			debug('getMirrorElem()');
+
+			return this.element[0].querySelector('[data-id="swis-reflector-mirror"]');
 		},
 
 		online: function(data)
@@ -67,11 +106,11 @@
 			});
 		},
 
-		getMirrorElem: function()
+		setState: function(state)
 		{
-			debug('getMirrorElem()');
+			debug('setState() [state:"%s"]', state);
 
-			return this.element[0].querySelector('[data-id="swis-reflector-mirror"]');
+			this._state.set(state);
 		}
 	});
 </script>

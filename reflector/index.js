@@ -7,6 +7,7 @@ var jquery = require('jquery');
 var lodash = require('lodash');
 var rtcninja = require('rtcninja');
 
+var blazeHelpers = require('./lib/blazeHelpers');
 var Agent = require('./lib/Agent');
 var notifications = require('./lib/notifications');
 
@@ -15,16 +16,16 @@ require('jquery-ui/widget');
 require('jquery-meteor-blaze')(jquery, lodash);
 require('./build')(jquery);
 
+// Load Blaze helpers
+blazeHelpers();
+
 // Single Agent instance
 var agent = null;
-// View widget
-var viewWidget = null;
 
 jquery(document).ready(function()
 {
 	if (checkBrowserSupported())
 	{
-		insertView();
 		runAgent();
 	}
 });
@@ -48,18 +49,9 @@ function checkBrowserSupported()
 	}
 }
 
-function insertView()
-{
-	debug('insertView()');
-
-	viewWidget = jquery(document.body)
-		.View()
-		.data('swis-View');
-}
-
 function runAgent()
 {
 	debug('runAgent()');
 
-	agent = new Agent(viewWidget);
+	agent = new Agent(document.body);
 }

@@ -6,6 +6,7 @@ div.View
 	> .header
 		flex: 0 0 auto
 		height: 100px
+		margin-bottom: 20px
 		transition-duration: 0.25s
 		transition-property: opacity
 		opacity: 0
@@ -16,8 +17,8 @@ div.View
 		> p.info
 			margin: 0
 			text-align: center
-			font-size: 30px
-			line-height: 100px
+			font-size: 22px
+			line-height: 50px
 			color: #fff
 
 			> [data-id="swis-reflector-code"]
@@ -27,6 +28,31 @@ div.View
 
 				&:hover
 					color: yellow
+
+		> .controls
+			height: 50px
+			display: flex
+			flex-direction: row
+			justify-content: center
+			align-items: center
+
+			button
+				height: 30px
+				border: 0
+				border-radius: 6px
+				margin: 0 10px
+				padding: 0 10px
+				min-width: 200px
+				font-size: 12px
+				color: #fff
+				outline: none
+				cursor: pointer
+
+				&.primary
+					background-color: #2ebfe3
+
+				&.secondary
+					background-color: #ed4d3c
 
 	> [data-id="swis-reflector-mirror"]
 		@require "./reset"

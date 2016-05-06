@@ -7,11 +7,12 @@ var inherits = require('inherits');
 var protooClient = require('protoo-client');
 var rtcninja = require('rtcninja');
 var swis = require('swis');
+var jquery = require('jquery');
 
 var settings = require('./settings');
 var notifications = require('./notifications');
 
-function Agent(viewWidget)
+function Agent(viewContainer)
 {
 	debug('new() [settings:%o]', settings);
 
@@ -22,7 +23,27 @@ function Agent(viewWidget)
 	var url = settings.protooUrl + '?username=' + settings.local.username + '&uuid=' + settings.local.uuid;
 
 	// View widget
-	this._viewWidget = viewWidget;
+	this._viewWidget = jquery(document.body)
+		.View()
+		.on('view:join', function()
+		{
+			debug('"view:join');
+
+			self._join();
+		})
+		.on('view:reject', function()
+		{
+			debug('"view:reject');
+
+			self._reject();
+		})
+		.on('view:terminate', function()
+		{
+			debug('"view:terminate');
+
+			self._terminate();
+		})
+		.data('swis-View');
 
 	// Closed flag
 	this._closed = false;
@@ -88,6 +109,8 @@ Agent.prototype._handleSession = function(session)
 
 	this._session = session;
 
+	this._viewWidget.setState('sessionrequested');
+
 	session.on('open', function()
 	{
 		debug('session established');
@@ -97,6 +120,16 @@ Agent.prototype._handleSession = function(session)
 	{
 		self._closeSession();
 	});
+};
+
+Agent.prototype._join = function()
+{
+	debug('_join()');
+
+	var self = this;
+	var session = this._session;
+
+	this._viewWidget.setState('sessionjoined');
 
 	this._pc = new rtcninja.RTCPeerConnection(
 		{
@@ -123,7 +156,6 @@ Agent.prototype._handleSession = function(session)
 		});
 
 	this._datachannel.binaryType = 'arraybuffer';
-
 
 	this._datachannel.onopen = function()
 	{
@@ -183,13 +215,28 @@ Agent.prototype._handleSession = function(session)
 	};
 };
 
+Agent.prototype._reject = function()
+{
+	debug('_join()');
+
+	this._session.request.reply(480);
+};
+
+Agent.prototype._terminate = function()
+{
+	debug('_terminate()');
+
+	this._session.removeAllListeners('close');
+	this._closeSession();
+};
+
 Agent.prototype._closeSession = function()
 {
 	debug('_closeSession()');
 
 	notifications.info('session ended');
 
-	this._session = null;
+	this._viewWidget.setState('idle');
 
 	// End ongoing session
 	if (this._session)
@@ -199,6 +246,8 @@ Agent.prototype._closeSession = function()
 			this._session.send('end');
 		}
 		catch (error) {}
+
+		this._session = null;
 	}
 
 	// Close PeerConnection
