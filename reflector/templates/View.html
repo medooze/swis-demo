@@ -3,9 +3,26 @@
 	<div class="View">
 		<div class="header {{#if online}}online{{/if}}">
 			<p class="info">your swis reflector code: <span data-id="swis-reflector-code">{{code}}</span></p>
+
+			<div class="controls">
+				{{#if equals state "sessionrequested"}}
+				<button class="primary" data-action="join">JOIN SESSION</button>
+				<button class="secondary" data-action="reject">REJECT SESSION</button>
+				{{/if}}
+
+				{{#if equals state "sessionjoined"}}
+				<button class="secondary" data-action="terminate">TERMINATE SESSION</button>
+				{{#unless paint}}
+				<button class="primary" data-action="paint">PAINT</button>
+				{{else}}
+				<button class="primary" data-action="stoppaint">STOP PAINT</button>
+				<button class="primary" data-action="clearpaint">CLEAR PAINT</button>
+				{{/unless}}
+				{{/if}}
+			</div>
 		</div>
 
-		<iframe data-id="swis-reflector-mirror"></iframe>
+		<iframe data-id="swis-reflector-mirror" class="{{#if mirrorVisible}}visible{{/if}} {{#if paint}}paint{{/if}}"></iframe>
 
 		<div class="footer"></div>
 	</div>
@@ -29,12 +46,60 @@
 
 			this._online = new jquery.Meteor.ReactiveVar(false);
 			this._code = new jquery.Meteor.ReactiveVar('');
+			// 'idle' / 'sessionrequested' / 'sessionjoined'
+			this._state = new jquery.Meteor.ReactiveVar('idle');
+			this._paint = new jquery.Meteor.ReactiveVar(false);
+			this._mirrorVisible = new jquery.Meteor.ReactiveVar(false);
 
 			this.element
 				.blaze(templates.View)
-				.reactive('online', this._online)
-				.reactive('code',   this._code)
-				.render();
+				.reactive('online',        this._online)
+				.reactive('code',          this._code)
+				.reactive('state',         this._state)
+				.reactive('paint',         this._paint)
+				.reactive('mirrorVisible', this._mirrorVisible)
+				.render()
+				.on('click.View', '[data-action="join"]', function(event)
+				{
+					debug('"click" in "join"');
+
+					self._trigger(':join');
+				})
+				.on('click.View', '[data-action="reject"]', function(event)
+				{
+					debug('"click" in "reject"');
+
+					self._trigger(':reject');
+				})
+				.on('click.View', '[data-action="terminate"]', function(event)
+				{
+					debug('"click" in "terminate"');
+
+					self._trigger(':terminate');
+				})
+				.on('click.View', '[data-action="paint"]', function(event)
+				{
+					debug('"click" in "paint"');
+
+					self._paint.set(true);
+					self._trigger(':paint');
+				})
+				.on('click.View', '[data-action="clearpaint"]', function(event)
+				{
+					debug('"click" in "clearpaint"');
+
+					self._trigger(':clearpaint');
+				})
+				.on('click.View', '[data-action="stoppaint"]', function(event)
+				{
+					debug('"click" in "stoppaint"');
+
+					self._paint.set(false);
+					self._trigger(':stoppaint');
+				});
+
+			// TODO: TMP
+			window.IFRAME = document.querySelector('iframe');
 		},
 
 		_destroy: function()
@@ -43,6 +108,13 @@
 				.unblaze()
 				.off('.View')
 				.empty();
+		},
+
+		getMirrorElem: function()
+		{
+			debug('getMirrorElem()');
+
+			return this.element[0].querySelector('[data-id="swis-reflector-mirror"]');
 		},
 
 		online: function(data)
@@ -67,11 +139,24 @@
 			});
 		},
 
-		getMirrorElem: function()
+		setState: function(state)
 		{
-			debug('getMirrorElem()');
+			debug('setState() [state:"%s"]', state);
 
-			return this.element[0].querySelector('[data-id="swis-reflector-mirror"]');
+			this._state.set(state);
+
+			if (state === 'idle')
+			{
+				this._paint.set(false);
+				this._mirrorVisible.set(false);
+			}
+		},
+
+		visible: function()
+		{
+			debug('visible()');
+
+			this._mirrorVisible.set(true);
 		}
 	});
 </script>

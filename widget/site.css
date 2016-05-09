@@ -12,3 +12,9 @@ body {
     #000 90%);
     background-attachment: fixed;
 }
+
+.fake-content {
+  text-align: center;
+  color: #fff;
+  font-weight: bold;
+}

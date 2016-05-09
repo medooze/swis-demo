@@ -219,7 +219,8 @@ Client.prototype._runSwisObserver = function()
 
 	this._observer = new swis.Observer(this._datachannel,
 		{
-			blob : false
+			blob : false,
+			chunk : 16000
 		});
 
 	this._observer.observe(excluded);
