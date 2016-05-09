@@ -300,7 +300,8 @@ Agent.prototype._runSwisReflector = function()
 
 	this._reflector = new swis.Reflector(this._datachannel,
 		{
-			blob : false
+			blob : false,
+			chunk : 16000
 		});
 
 	this._reflector.reflect(mirror.contentWindow.document);
