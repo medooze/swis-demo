@@ -72,20 +72,23 @@ Client.prototype.close = function()
 
 	this._closed = true;
 
+	// Close swis
+	if (this._observer)
+		this._observer.stop();
+
 	// Close PeerConnection
 	if (this._pc && this._pc.signalingState !== 'closed')
 		this._pc.close();
 
 	// End ongoing session
 	if (this._session)
-		this._session.send('end');
+	{
+		try { this._session.send('end'); } catch (error) {}
+		this._session = null;
+	}
 
 	// Close Protoo client
 	this._protoo.close();
-
-	// Close swis
-	if (this._observer)
-		this._observer.stop();
 
 	this.emit('close');
 };
@@ -219,7 +222,7 @@ Client.prototype._runSwisObserver = function()
 
 	this._observer = new swis.Observer(this._datachannel,
 		{
-			blob : false,
+			blob  : false,
 			chunk : 16000
 		});
 

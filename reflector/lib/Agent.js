@@ -270,25 +270,20 @@ Agent.prototype._closeSession = function()
 
 	this._viewWidget.setState('idle');
 
+	// Close swis
+	if (this._reflector)
+		this._reflector.stop();
+
 	// End ongoing session
 	if (this._session)
 	{
-		try
-		{
-			this._session.send('end');
-		}
-		catch (error) {}
-
+		try { this._session.send('end'); } catch (error) {}
 		this._session = null;
 	}
 
 	// Close PeerConnection
 	if (this._pc && this._pc.signalingState !== 'closed')
 		this._pc.close();
-
-	// Close swis
-	if (this._reflector)
-		this._reflector.stop();
 };
 
 Agent.prototype._runSwisReflector = function()
@@ -300,7 +295,7 @@ Agent.prototype._runSwisReflector = function()
 
 	this._reflector = new swis.Reflector(this._datachannel,
 		{
-			blob : false,
+			blob  : false,
 			chunk : 16000
 		});
 
