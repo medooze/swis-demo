@@ -218,7 +218,7 @@ Client.prototype._runSwisObserver = function()
 {
 	debug('_runSwisObserver()');
 
-	var excluded = '[data-id="swis-button-container"]';
+	var excluded = '#swis-css,[data-id="swis-button-container"]';
 
 	this._observer = new swis.Observer(this._datachannel,
 		{
