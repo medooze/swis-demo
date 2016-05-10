@@ -1,4 +1,5 @@
 node_modules/
 build/
 dist/
+widget/extension/swis-widget.min.js
 npm-debug.log

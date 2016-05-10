@@ -2,6 +2,9 @@ var gulp = require('gulp');
 var stylus = require('gulp-stylus');
 var nib = require('nib');
 var rename = require('gulp-rename');
+var uglify = require('gulp-uglify');
+var header = require('gulp-header');
+var fs = require('fs');
 var path = require('path');
 var browserify = require('browserify');
 var vinyl_source_stream = require('vinyl-source-stream');
@@ -11,6 +14,8 @@ var mkdirp = require('mkdirp');
 var browserSync = require('browser-sync').create();
 
 const PKG = require('./package.json');
+const CHROME_MANIFEST = require('./extension/manifest.json');
+const BANNER = fs.readFileSync('./banner.txt').toString();
 
 gulp.task('widgets', function(done)
 {
@@ -58,6 +63,15 @@ gulp.task('browserify', function()
 		.pipe(gulp.dest('./dist/'));
 });
 
+gulp.task('extension', function()
+{
+	return gulp.src(path.join('./dist', PKG.name + '.js'))
+		.pipe(uglify())
+		.pipe(header(BANNER, { manifest: CHROME_MANIFEST }))
+		.pipe(rename(PKG.name + '.min.js'))
+		.pipe(gulp.dest('extension/'));
+});
+
 gulp.task('browser:open', function(done)
 {
 	browserSync.init(
@@ -89,8 +103,8 @@ gulp.task('watch', function()
 		gulp.series('build', 'browser:reload'));
 });
 
-gulp.task('build', gulp.series('widgets', 'stylus', 'browserify'));
+gulp.task('build', gulp.series('widgets', 'stylus', 'browserify', 'extension'));
 
 gulp.task('live', gulp.series('build', 'browser:open', 'watch'));
 
-gulp.task('default', gulp.series('live'));
+gulp.task('default', gulp.series('build'));
