@@ -15,7 +15,7 @@ var browserSync = require('browser-sync').create();
 
 const PKG = require('./package.json');
 const CHROME_MANIFEST = require('./extension/manifest.json');
-const BANNER = fs.readFileSync('./banner.txt').toString();
+const BANNER = fs.readFileSync('./BANNER.txt').toString();
 
 gulp.task('widgets', function(done)
 {
