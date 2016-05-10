@@ -1,6 +1,7 @@
 body {
-  padding:0;
-  margin:0;
+  padding: 0;
+  margin: 0 auto;
+  width: 1200px;
   background-image: -webkit-linear-gradient(top left,
     rgb(238, 130, 238),
     rgb(75, 0, 130) 10.0%,
@@ -10,11 +11,14 @@ body {
     #FFA500 60.0%,
     #FF0000 75.0%,
     #000 90%);
-    background-attachment: fixed;
+  background-attachment: fixed;
 }
 
 .fake-content {
+  margin: 100px;
   text-align: center;
   color: #fff;
   font-weight: bold;
+  border: 1px solid #333;
+  background-color: rgba(255, 255, 255, 0.3);
 }
