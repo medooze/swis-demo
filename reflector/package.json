@@ -34,6 +34,6 @@
     "vinyl-source-stream": "^1.1.0"
   },
   "scripts": {
-    "start": "gulp"
+    "start": "gulp live"
   }
 }
