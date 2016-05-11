@@ -91,6 +91,6 @@ gulp.task('watch', function()
 
 gulp.task('build', gulp.series('widgets', 'stylus', 'browserify'));
 
-gulp.task('live', gulp.series('build', 'browser:open', 'watch'));
+gulp.task('live', gulp.series('widgets', 'stylus', 'browserify', 'browser:open', 'watch'));
 
 gulp.task('default', gulp.series('build'));
