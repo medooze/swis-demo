@@ -12,6 +12,7 @@
 
 				{{#if equals state "sessionjoined"}}
 				<button class="secondary" data-action="terminate">TERMINATE SESSION</button>
+				<button class="secondary" data-action="download">DOWNLOAD RECORDING</button>
 				{{#unless paint}}
 				<button class="primary" data-action="paint">PAINT</button>
 				{{else}}
@@ -70,6 +71,12 @@
 					debug('"click" in "reject"');
 
 					self._trigger(':reject');
+				})
+				.on('click.View', '[data-action="download"]', function(event)
+				{
+					debug('"click" in "download"');
+
+					self._trigger(':download');
 				})
 				.on('click.View', '[data-action="terminate"]', function(event)
 				{

@@ -37,6 +37,12 @@ function Agent(viewContainer)
 
 			self._reject();
 		})
+		.on('view:download', function()
+		{
+			debug('"view:download');
+
+			self._download();
+		})
 		.on('view:terminate', function()
 		{
 			debug('"view:terminate');
@@ -254,6 +260,14 @@ Agent.prototype._reject = function()
 	this._session.request.reply(480);
 };
 
+Agent.prototype._download = function()
+{
+	debug('_download()');
+
+	if (this._reflector)
+		this._reflector.download();
+};
+
 Agent.prototype._terminate = function()
 {
 	debug('_terminate()');
@@ -296,7 +310,8 @@ Agent.prototype._runSwisReflector = function()
 	this._reflector = new swis.Reflector(this._datachannel,
 		{
 			blob  : false,
-			chunk : 16000
+			chunk : 16000,
+			recording : true
 		});
 
 	this._reflector.reflect(mirror.contentWindow.document);
@@ -316,6 +331,10 @@ Agent.prototype._runSwisReflector = function()
 
 		mirror.width = data.width + (mirror.width - mirror.contentWindow.document.documentElement.clientWidth);
 		mirror.height = data.height; + (mirror.height - mirror.contentWindow.document.documentElement.clientheight);
+	});
+
+	this._reflector.on('scroll',function(data){
+		mirror.contentWindow.scrollTo(data.x, data.y);
 	});
 
 	var remoteCursor;
