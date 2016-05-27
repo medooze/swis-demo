@@ -333,7 +333,8 @@ Agent.prototype._runSwisReflector = function()
 		mirror.height = data.height; + (mirror.height - mirror.contentWindow.document.documentElement.clientheight);
 	});
 
-	this._reflector.on('scroll',function(data){
+	this._reflector.on('scroll', function(data)
+	{
 		mirror.contentWindow.scrollTo(data.x, data.y);
 	});
 
