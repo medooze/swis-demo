@@ -16,7 +16,7 @@
     "protoo-client": "^0.3.0",
     "random-string": "^0.1.2",
     "rtcninja": "^0.6.5",
-    "swis": "eface2face/swis.git",
+    "swis": "git+https://ef2f-madrid:7bc936da5d6c0b9c6b14c14ae2a5c9a7a5e942ac@github.com/eface2face/swis.git#master",
     "toastr": "^2.1.2"
   },
   "devDependencies": {
