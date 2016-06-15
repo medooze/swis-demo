@@ -12,7 +12,7 @@ var jquery = require('jquery');
 var settings = require('./settings');
 var notifications = require('./notifications');
 
-function Agent(viewContainer)
+function Agent()
 {
 	debug('new() [settings:%o]', settings);
 
@@ -71,6 +71,10 @@ function Agent(viewContainer)
 
 	// Closed flag
 	this._closed = false;
+
+	// HTML elements
+	this._mirror = this._viewWidget.getMirrorElem();
+	this._container = this._mirror.parentNode;
 
 	// protoo client
 	this._protoo = protooClient({ url : url });
@@ -288,6 +292,9 @@ Agent.prototype._closeSession = function()
 	if (this._reflector)
 		this._reflector.stop();
 
+	// Remove container scroll event
+	this._container.removeEventListener('scroll', this.oncontainerscroll);
+
 	// End ongoing session
 	if (this._session)
 	{
@@ -305,72 +312,73 @@ Agent.prototype._runSwisReflector = function()
 	debug('_runSwisReflector()');
 
 	var self = this;
-	var mirror = this._viewWidget.getMirrorElem();
+	var mirror = this._mirror;
+	var container = this._container;
+	var remoteCursorPosition =
+	{
+		x : 0,
+		y : 0
+	};
 
 	this._reflector = new swis.Reflector(this._datachannel,
 		{
-			blob  : false,
-			chunk : 16000,
+			blob      : false,
+			chunk     : 16000,
 			recording : true
 		});
 
 	this._reflector.reflect(mirror.contentWindow.document);
 
-	var firstResize = true;
-
 	this._reflector.on('resize', function(data)
 	{
-		if (firstResize)
-		{
-			mirror.width = data.width;
-			mirror.height = data.height;
-			firstResize = false;
-
-			self._viewWidget.visible();
-		}
-
-		mirror.width = data.width + (mirror.width - mirror.contentWindow.document.documentElement.clientWidth);
-		mirror.height = data.height; + (mirror.height - mirror.contentWindow.document.documentElement.clientheight);
+		mirror.style.width = data.scrollWidth + 'px';
+		mirror.style.height = data.scrollHeight + 'px';
 	});
 
 	this._reflector.on('scroll', function(data)
 	{
-		mirror.contentWindow.scrollTo(data.x, data.y);
+		container.scrollTop  = data.top;
+		container.scrollLeft = data.left;
 	});
 
-	var remoteCursor;
-	var remoteDocument = mirror.contentWindow.document;
+	// Make the mirror view visible
+	this._viewWidget.visible();
+
+	container.addEventListener('scroll', (this.oncontainerscroll = function(event)
+	{
+		updateRemoteCursor();
+
+		self._reflector.scroll(container.scrollLeft, container.scrollTop);
+	}));
 
 	this._reflector.on('remotecursormove', function(data)
 	{
-		if (!remoteCursor)
+		if (!self._remoteCursor)
 		{
-			remoteCursor = remoteDocument.createElement('div');
+			self._remoteCursor = document.createElement('div');
 
-			remoteCursor.style['pointer-events'] = 'none';
-			remoteCursor.style['position'] = 'absolute';
-			remoteCursor.style['width'] = '25px';
-			remoteCursor.style['height'] = '25px';
-			remoteCursor.style['line-height'] = '25px';
-			remoteCursor.style['text-align'] = 'center';
-			remoteCursor.style['border-radius'] = '100%';
-			remoteCursor.style['border'] = '1px solid #fff';
-			remoteCursor.style['background-color'] = 'rgba(96, 255, 0, 0.8)';
-			remoteCursor.style['color'] = '#fff';
-			remoteCursor.style['font-size'] = '20px';
-			remoteCursor.style['font-weight'] = 'bold';
-			remoteCursor.style['margin'] = '0px';
-			remoteCursor.style['padding'] = '0px';
-			remoteCursor.style['z-index'] = '9999';
+			self._remoteCursor.classList.add('remote-cursor');
 
-			remoteCursor.innerHTML = '^';
-
-			remoteDocument.documentElement.appendChild(remoteCursor);
+			container.insertBefore(self._remoteCursor, mirror);
 		}
 
-		remoteCursor.style['left'] = data.x + 'px';
-		remoteCursor.style['top'] =  data.y + 'px';
+		updateRemoteCursor(data.x, data.y);
 	});
+
+	function updateRemoteCursor(x, y)
+	{
+		if (!self._remoteCursor)
+			return;
+
+		if (x !== undefined)
+		{
+			remoteCursorPosition.x = x;
+			remoteCursorPosition.y = y;
+		}
+
+		self._remoteCursor.style['left'] = remoteCursorPosition.x + 'px';
+		self._remoteCursor.style['top'] = remoteCursorPosition.y + 'px';
+	}
 
 	notifications.success('swis running');
 };

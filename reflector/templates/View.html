@@ -23,7 +23,10 @@
 			</div>
 		</div>
 
-		<iframe data-id="swis-reflector-mirror" class="{{#if mirrorVisible}}visible{{/if}} {{#if paint}}paint{{/if}}"></iframe>
+		<div data-id="reflector-container" class="{{#if mirrorVisible}}visible{{/if}} {{#if paint}}paint{{/if}}">
+			<!-- Here a div.remote-cursor will be created by the JS -->
+			<iframe data-id="reflector-mirror"></iframe>
+		</div>
 
 		<div class="footer"></div>
 	</div>
@@ -118,7 +121,7 @@
 		{
 			debug('getMirrorElem()');
 
-			return this.element[0].querySelector('[data-id="swis-reflector-mirror"]');
+			return this.element[0].querySelector('[data-id="reflector-mirror"]');
 		},
 
 		online: function(data)
