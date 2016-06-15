@@ -53,5 +53,5 @@ function runAgent()
 {
 	debug('runAgent()');
 
-	agent = new Agent(document.body);
+	agent = new Agent();
 }

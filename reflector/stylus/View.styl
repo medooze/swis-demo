@@ -2,6 +2,7 @@ div.View
 	flex: 100 100 auto
 	display: flex
 	flex-direction: column
+	padding: 10px
 
 	> .header
 		flex: 0 0 auto
@@ -54,21 +55,20 @@ div.View
 				&.secondary
 					background-color: #ed4d3c
 
-	> [data-id="swis-reflector-mirror"]
-		@require "./reset"
-
+	> [data-id="reflector-container"]
+		position: relative  // Important
+		max-width: 100%
+		border: 2px solid transparent
 		flex: 100 100 auto
-		display: flex
 		flex-direction: column
 		margin: 0 auto
-		overflow: hidden
+		overflow: scroll
 		background-color: rgba(#fff, 0.85)
-		border: 1px solid #333
 		box-shadow: 0px 0px 5px 1px rgba(#333, 0.75)
 		border: 4px solid #141414
 		opacity: 0
 		transition-property: opacity
-		transition-duration: 0.5s
+		transition-duration: 2s
 
 		&.visible
 			opacity: 1
@@ -76,6 +76,22 @@ div.View
 		&.paint
 			cursor: crosshair  // It does not work
 			border-color: #80ff00
+
+		> div.remote-cursor
+			size = 50px
+
+			pointer-events: none
+			position: absolute
+			z-index: 99999
+			padding: 0
+			margin: 0
+			margin-left: -1 * (size / 2)
+			margin-top: -1 * (size / 2)
+			width: size
+			height: size
+			background-image: url("/resources/images/remote-cursor.svg")
+			background-position: center
+			background-size: cover
 
 	> .footer
 		flex: 0 0 auto
