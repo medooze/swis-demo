@@ -314,7 +314,6 @@ Agent.prototype._runSwisReflector = function()
 	var self = this;
 	var mirror = this._mirror;
 	var container = this._container;
-	var remoteCursor;
 	var remoteCursorPosition =
 	{
 		x : 0,
@@ -338,7 +337,6 @@ Agent.prototype._runSwisReflector = function()
 
 	this._reflector.on('scroll', function(data)
 	{
-		console.log('scroll');
 		container.scrollTop  = data.top;
 		container.scrollLeft = data.left;
 	});
@@ -355,13 +353,13 @@ Agent.prototype._runSwisReflector = function()
 
 	this._reflector.on('remotecursormove', function(data)
 	{
-		if (!remoteCursor)
+		if (!self._remoteCursor)
 		{
-			remoteCursor = document.createElement('div');
+			self._remoteCursor = document.createElement('div');
 
-			remoteCursor.classList.add('remote-cursor');
+			self._remoteCursor.classList.add('remote-cursor');
 
-			container.insertBefore(remoteCursor, mirror);
+			container.insertBefore(self._remoteCursor, mirror);
 		}
 
 		updateRemoteCursor(data.x, data.y);
@@ -369,7 +367,7 @@ Agent.prototype._runSwisReflector = function()
 
 	function updateRemoteCursor(x, y)
 	{
-		if (!remoteCursor)
+		if (!self._remoteCursor)
 			return;
 
 		if (x !== undefined)
@@ -378,8 +376,8 @@ Agent.prototype._runSwisReflector = function()
 			remoteCursorPosition.y = y;
 		}
 
-		remoteCursor.style['left'] = remoteCursorPosition.x + 'px';
-		remoteCursor.style['top'] = remoteCursorPosition.y + 'px';
+		self._remoteCursor.style['left'] = remoteCursorPosition.x + 'px';
+		self._remoteCursor.style['top'] = remoteCursorPosition.y + 'px';
 	}
 
 	notifications.success('swis running');
