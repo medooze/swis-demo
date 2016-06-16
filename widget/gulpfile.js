@@ -1,6 +1,7 @@
 var gulp = require('gulp');
 var stylus = require('gulp-stylus');
 var nib = require('nib');
+var cssBase64 = require('gulp-css-base64');
 var rename = require('gulp-rename');
 var uglify = require('gulp-uglify');
 var header = require('gulp-header');
@@ -38,7 +39,8 @@ gulp.task('widgets', function(done)
 		});
 });
 
-gulp.task('stylus', function() {
+gulp.task('css', function()
+{
 	return gulp.src([ './stylus/index.styl' ])
 		.pipe(stylus(
 			{
@@ -46,6 +48,10 @@ gulp.task('stylus', function() {
 				compress : false  // minifycss does it better.
 			}))
 		.pipe(rename(PKG.name + '.css'))
+		.pipe(cssBase64(
+			{
+				baseDir : '.'
+			}))
 		.pipe(gulp.dest('./dist'));
 });
 
@@ -103,8 +109,10 @@ gulp.task('watch', function()
 		gulp.series('build', 'browser:reload'));
 });
 
-gulp.task('build', gulp.series('widgets', 'stylus', 'browserify', 'extension'));
+// TODO: Remove 'extension' task for now
+// gulp.task('build', gulp.series('widgets', 'css', 'browserify', 'extension'));
+gulp.task('build', gulp.series('widgets', 'css', 'browserify'));
 
-gulp.task('live', gulp.series('widgets', 'stylus', 'browserify', 'browser:open', 'watch'));
+gulp.task('live', gulp.series('widgets', 'css', 'browserify', 'browser:open', 'watch'));
 
 gulp.task('default', gulp.series('build'));
