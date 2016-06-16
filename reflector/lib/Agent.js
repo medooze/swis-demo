@@ -311,9 +311,15 @@ Agent.prototype._runSwisReflector = function()
 {
 	debug('_runSwisReflector()');
 
+	var SCROLL_WIDTH = 12;
+
 	var self = this;
 	var mirror = this._mirror;
 	var container = this._container;
+
+	// TODO
+	global.m = mirror;
+	global.c = container;
 
 	this._reflector = new swis.Reflector(this._datachannel,
 		{
@@ -372,8 +378,8 @@ Agent.prototype._runSwisReflector = function()
 		if (!self._remoteCursor || x === undefined)
 			return;
 
-		self._remoteCursor.style['left'] = x + 'px';
-		self._remoteCursor.style['top'] = y + 'px';
+		self._remoteCursor.style.left = x + 'px';
+		self._remoteCursor.style.top = y + 'px';
 	}
 
 	notifications.success('swis running');
