@@ -311,15 +311,9 @@ Agent.prototype._runSwisReflector = function()
 {
 	debug('_runSwisReflector()');
 
-	var SCROLL_WIDTH = 12;
-
 	var self = this;
 	var mirror = this._mirror;
 	var container = this._container;
-
-	// TODO
-	global.m = mirror;
-	global.c = container;
 
 	this._reflector = new swis.Reflector(this._datachannel,
 		{
