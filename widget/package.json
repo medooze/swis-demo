@@ -28,6 +28,7 @@
     "gulp-less": "^3.0.5",
     "gulp-rename": "^1.2.2",
     "gulp-stylus": "^2.3.1",
+    "gulp-touch": "^1.0.1",
     "gulp-uglify": "^1.5.3",
     "jquery-widget-compiler": "^1.2.0",
     "mkdirp": "^0.5.1",

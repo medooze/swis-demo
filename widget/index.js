@@ -81,7 +81,7 @@ function insertButton()
 			if (settings.remote.username)
 				runClient();
 			else
-				showReflectorCodeInput();
+				buttonWidget.showInput();
 		})
 		.on('button:stop', function()
 		{
@@ -120,11 +120,4 @@ function stopClient()
 	debug('stopClient()');
 
 	client.close();
-}
-
-function showReflectorCodeInput()
-{
-	debug('showReflectorCodeInput()');
-
-	buttonWidget.showInput();
 }

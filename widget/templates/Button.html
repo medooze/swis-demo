@@ -72,6 +72,9 @@
 			debug('setRunning() [value:%s]', !!value);
 
 			this._running.set(!!value);
+
+			if (!value)
+				this._showInput.set(false);
 		},
 
 		showInput: function()

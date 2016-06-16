@@ -328,6 +328,10 @@ Agent.prototype._runSwisReflector = function()
 	{
 		mirror.style.width = data.scrollWidth + 'px';
 		mirror.style.height = data.scrollHeight + 'px';
+
+		// Hide the remote cursor on resize
+		if (self._remoteCursor)
+			self._remoteCursor.classList.add('hidden');
 	});
 
 	this._reflector.on('scroll', function(data)
@@ -358,6 +362,9 @@ Agent.prototype._runSwisReflector = function()
 		}
 
 		updateRemoteCursor(data.x, data.y);
+
+		// Make it visible (just in case)
+		self._remoteCursor.classList.remove('hidden');
 	});
 
 	function updateRemoteCursor(x, y)

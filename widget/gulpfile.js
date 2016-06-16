@@ -5,6 +5,7 @@ var cssBase64 = require('gulp-css-base64');
 var rename = require('gulp-rename');
 var uglify = require('gulp-uglify');
 var header = require('gulp-header');
+var touch = require('gulp-touch');
 var fs = require('fs');
 var path = require('path');
 var browserify = require('browserify');
@@ -52,7 +53,8 @@ gulp.task('css', function()
 			{
 				baseDir : '.'
 			}))
-		.pipe(gulp.dest('./dist'));
+		.pipe(gulp.dest('./dist'))
+		.pipe(touch());
 });
 
 gulp.task('browserify', function()

@@ -2,6 +2,7 @@ var gulp = require('gulp');
 var stylus = require('gulp-stylus');
 var nib = require('nib');
 var rename = require('gulp-rename');
+var touch = require('gulp-touch');
 var path = require('path');
 var browserify = require('browserify');
 var vinyl_source_stream = require('vinyl-source-stream');
@@ -42,7 +43,8 @@ gulp.task('css', function()
 				compress : false  // minifycss does it better.
 			}))
 		.pipe(rename(PKG.name + '.css'))
-		.pipe(gulp.dest('./dist'));
+		.pipe(gulp.dest('./dist'))
+		.pipe(touch());
 });
 
 gulp.task('browserify', function()
