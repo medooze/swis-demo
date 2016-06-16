@@ -76,6 +76,10 @@ Client.prototype.close = function()
 	if (this._observer)
 		this._observer.stop();
 
+	// Remove remote cursor
+	if (this._remoteCursor)
+		document.body.removeChild(this._remoteCursor);
+
 	// Close PeerConnection
 	if (this._pc && this._pc.signalingState !== 'closed')
 		this._pc.close();
@@ -218,6 +222,7 @@ Client.prototype._runSwisObserver = function()
 {
 	debug('_runSwisObserver()');
 
+	var self = this;
 	var excluded = '#swis-css,[data-id="swis-button-container"],#swis-widget-toast-container';
 
 	this._observer = new swis.Observer(this._datachannel,
@@ -227,6 +232,29 @@ Client.prototype._runSwisObserver = function()
 		});
 
 	this._observer.observe(excluded);
+
+	this._observer.on('remotecursormove', function(data)
+	{
+		if (!self._remoteCursor)
+		{
+			self._remoteCursor = document.createElement('div');
+
+			self._remoteCursor.classList.add('swis-remote-cursor');
+
+			document.body.appendChild(self._remoteCursor);
+		}
+
+		updateRemoteCursor(data.x, data.y);
+	});
+
+	function updateRemoteCursor(x, y)
+	{
+		if (!self._remoteCursor || x === undefined)
+			return;
+
+		self._remoteCursor.style['left'] = x + 'px';
+		self._remoteCursor.style['top'] = y + 'px';
+	}
 
 	notifications.success('swis running');
 };

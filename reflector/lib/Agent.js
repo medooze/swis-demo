@@ -314,11 +314,6 @@ Agent.prototype._runSwisReflector = function()
 	var self = this;
 	var mirror = this._mirror;
 	var container = this._container;
-	var remoteCursorPosition =
-	{
-		x : 0,
-		y : 0
-	};
 
 	this._reflector = new swis.Reflector(this._datachannel,
 		{
@@ -357,7 +352,7 @@ Agent.prototype._runSwisReflector = function()
 		{
 			self._remoteCursor = document.createElement('div');
 
-			self._remoteCursor.classList.add('remote-cursor');
+			self._remoteCursor.classList.add('swis-remote-cursor');
 
 			container.insertBefore(self._remoteCursor, mirror);
 		}
@@ -367,17 +362,11 @@ Agent.prototype._runSwisReflector = function()
 
 	function updateRemoteCursor(x, y)
 	{
-		if (!self._remoteCursor)
+		if (!self._remoteCursor || x === undefined)
 			return;
 
-		if (x !== undefined)
-		{
-			remoteCursorPosition.x = x;
-			remoteCursorPosition.y = y;
-		}
-
-		self._remoteCursor.style['left'] = remoteCursorPosition.x + 'px';
-		self._remoteCursor.style['top'] = remoteCursorPosition.y + 'px';
+		self._remoteCursor.style['left'] = x + 'px';
+		self._remoteCursor.style['top'] = y + 'px';
 	}
 
 	notifications.success('swis running');
