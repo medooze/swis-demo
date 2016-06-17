@@ -112,9 +112,7 @@ gulp.task('watch', function()
 		gulp.series('build', 'browser:reload'));
 });
 
-// TODO: Remove 'extension' task for now
-// gulp.task('build', gulp.series('widgets', 'css', 'browserify', 'extension'));
-gulp.task('build', gulp.series('widgets', 'css', 'browserify'));
+gulp.task('build', gulp.series('widgets', 'css', 'browserify', 'extension'));
 
 gulp.task('live', gulp.series('widgets', 'css', 'browserify', 'browser:open', 'watch'));
 

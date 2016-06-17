@@ -1,6 +1,7 @@
 body {
   padding: 0;
   margin: 0 auto;
+  min-width: 900px;
   background-image: -webkit-linear-gradient(top left,
     rgb(238, 130, 238),
     rgb(75, 0, 130) 10.0%,
