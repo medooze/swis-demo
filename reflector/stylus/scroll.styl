@@ -1,0 +1,75 @@
+.scroll
+	// If the browser does not support "overlay" (i.e. Firefox) use "auto".
+	overflow: auto
+	// Put the scroll bar over the content.
+	overflow: overlay
+	// NOTE: Required to avoid absolute elements within this div above the scroll bar.
+	z-index: 9
+
+	// Configure visible and clickable bar width.
+	visible-width = 4px
+	clickable-width = 12px
+
+	bar-width = clickable-width
+	border-width = (clickable-width - visible-width) / 2
+
+	&::-webkit-scrollbar
+		width: bar-width
+		height: bar-width
+
+	// Hide up/down buttons.
+	&::-webkit-scrollbar-button
+		width: 0px
+		height: 0px
+
+	// Hide corner.
+	&::-webkit-scrollbar-corner
+		background-color: transparent
+
+	// Bar fragment indicating non visible area.
+	&::-webkit-scrollbar-track
+		border: border-width solid transparent
+		border-radius: 50px
+		background-clip: content-box
+		background-color: transparent
+
+	// Bar fragment indicating visible area.
+	&::-webkit-scrollbar-thumb
+		border: border-width solid transparent
+		border-radius: 50px
+		background-clip: content-box
+		background-color: rgba(0, 0, 0, 0.2)
+		min-height: 40px
+	&.dark::-webkit-scrollbar-thumb
+		background-color: rgba(255, 255, 255, 0.4)
+		min-height: 40px
+
+
+	// Mouse is over the scrollable div.
+
+	&:hover::-webkit-scrollbar-track
+		background-color: rgba(0, 0, 0, 0.1)
+	&.dark:hover::-webkit-scrollbar-track
+		background-color: rgba(255, 255, 255, 0.2)
+
+	&:hover::-webkit-scrollbar-thumb
+		background-color: rgba(0, 0, 0, 0.3)
+	&.dark:hover::-webkit-scrollbar-thumb
+		background-color: rgba(255, 255, 255, 0.6)
+
+
+	// Mouse is over the scroll bar.
+
+	&:hover::-webkit-scrollbar-track:hover
+		background-color: rgba(0, 0, 0, 0.2)
+	&.dark:hover::-webkit-scrollbar-track:hover
+		background-color: rgba(255, 255, 255, 0.3)
+
+	&:hover::-webkit-scrollbar-thumb:hover
+		background-color: rgba(0, 0, 0, 0.5)
+	&.dark:hover::-webkit-scrollbar-thumb:hover
+		background-color: rgba(255, 255, 255, 0.8)
+	&:hover::-webkit-scrollbar-thumb:active
+		background-color: rgba(0, 0, 0, 0.8)
+	&.dark:hover::-webkit-scrollbar-thumb:active
+		background-color: rgba(255, 255, 255, 0.8)

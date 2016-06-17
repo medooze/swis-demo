@@ -80,6 +80,9 @@ Client.prototype.close = function()
 	if (this._remoteCursor)
 		document.body.removeChild(this._remoteCursor);
 
+	// Remove window's resize event listener
+	window.removeEventListener('resize', this.onwindowresize);
+
 	// Close PeerConnection
 	if (this._pc && this._pc.signalingState !== 'closed')
 		this._pc.close();
@@ -223,7 +226,7 @@ Client.prototype._runSwisObserver = function()
 	debug('_runSwisObserver()');
 
 	var self = this;
-	var excluded = '#swis-css,[data-id="swis-button-container"],#swis-widget-toast-container';
+	var excluded = '#swis-css,[data-id="swis-button-container"],#swis-widget-toast-container,div.swis-remote-cursor';
 
 	this._observer = new swis.Observer(this._datachannel,
 		{
@@ -245,6 +248,9 @@ Client.prototype._runSwisObserver = function()
 		}
 
 		updateRemoteCursor(data.x, data.y);
+
+		// Make it visible (just in case)
+		self._remoteCursor.classList.remove('hidden');
 	});
 
 	function updateRemoteCursor(x, y)
@@ -252,9 +258,19 @@ Client.prototype._runSwisObserver = function()
 		if (!self._remoteCursor || x === undefined)
 			return;
 
-		self._remoteCursor.style['left'] = x + 'px';
-		self._remoteCursor.style['top'] = y + 'px';
+		self._remoteCursor.style.left = x + 'px';
+		self._remoteCursor.style.top = y + 'px';
 	}
+
+	// On window resize we better hide the remote cursor not to
+	// produce ugly effect
+	// TODO: This should be done by swis
+	window.addEventListener('resize', this.onwindowresize = function()
+	{
+		// Hide the remote cursor on resize
+		if (self._remoteCursor)
+			self._remoteCursor.classList.add('hidden');
+	});
 
 	notifications.success('swis running');
 };
