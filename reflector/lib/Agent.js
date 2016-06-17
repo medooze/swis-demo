@@ -74,7 +74,7 @@ function Agent()
 
 	// HTML elements
 	this._mirror = this._viewWidget.getMirrorElem();
-	this._container = this._mirror.parentNode;
+	this._container = this._mirror.parentElement;
 
 	// protoo client
 	this._protoo = protooClient({ url : url });
