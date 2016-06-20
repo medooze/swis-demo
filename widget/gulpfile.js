@@ -111,8 +111,8 @@ gulp.task('watch', function()
 		gulp.series('build', 'browser:reload'));
 });
 
-gulp.task('build', gulp.series('widgets', 'css', 'browserify', 'extension'));
+gulp.task('build', gulp.series('widgets', 'css', 'browserify'));
 
-gulp.task('live', gulp.series('widgets', 'css', 'browserify', 'browser:open', 'watch'));
+gulp.task('live', gulp.series('build', 'browser:open', 'watch'));
 
-gulp.task('default', gulp.series('build'));
+gulp.task('default', gulp.series('build', 'extension'));

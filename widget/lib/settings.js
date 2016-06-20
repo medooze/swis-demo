@@ -19,6 +19,7 @@ var settings =
 if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
 {
 	settings.protooUrl = 'ws://localhost:8086/cobrowse/';
+	settings.swisWsUrl = 'ws://localhost:8088/cobrowse-data/';
 	settings.remote =
 	{
 		username : 'reflector-localhost',
@@ -28,9 +29,8 @@ if (window.location.hostname === 'localhost' || window.location.hostname === '12
 // Otherwise use production settings
 else
 {
-	var script = document
-
 	settings.protooUrl = 'wss://dev.ef2f.com/cobrowse/';
+	settings.swisWsUrl = 'wss://dev.ef2f.com/cobrowse-data/';
 	settings.remote =
 	{
 		username : null,

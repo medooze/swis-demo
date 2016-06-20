@@ -7,19 +7,24 @@ var inherits = require('inherits');
 var protooClient = require('protoo-client');
 var rtcninja = require('rtcninja');
 var swis = require('swis');
+var randomString = require('random-string');
 
 var settings = require('./settings');
 var notifications = require('./notifications');
 
-function Client()
+var webrtcSuported = true;
+
+function Client(options)
 {
-	debug('new() [settings:%o]', settings);
+	debug('new() [options:%o, settings:%o]', options, settings);
 
 	// Inherit from EventEmitter
 	EventEmitter.call(this);
 
 	var self = this;
 	var url = settings.protooUrl + '?username=' + settings.local.username + '&uuid=' + settings.local.uuid;
+
+	this._options = options || {};
 
 	// Closed flag
 	this._closed = false;
@@ -37,7 +42,10 @@ function Client()
 	{
 		debug('online');
 
-		self._invite();
+		if (webrtcSuported)
+			self._inviteWithDataChannel();
+		else
+			self._inviteWithWebSocket();
 	});
 
 	this._protoo.on('offline', function()
@@ -50,8 +58,8 @@ function Client()
 	// PeerConnection instance
 	this._pc = null;
 
-	// DataChannel instance
-	this._datachannel = null;
+	// swis DataChannel/WebSocket instance
+	this._channel = null;
 
 	// protoo Session
 	this._session = null;
@@ -59,6 +67,13 @@ function Client()
 	// swis Observer
 	this._observer = null;
 }
+
+Client.setNoWebRTC = function()
+{
+	debug('setNoWebRTC()');
+
+	webrtcSuported = false;
+};
 
 // Inherits from EventEmitter
 inherits(Client, EventEmitter);
@@ -84,6 +99,10 @@ Client.prototype.close = function()
 	if (this._pc && this._pc.signalingState !== 'closed')
 		this._pc.close();
 
+	// Close channel
+	if (this._channel)
+		try { this._channel.close(); } catch (error) {}
+
 	// End ongoing session
 	if (this._session)
 	{
@@ -97,9 +116,9 @@ Client.prototype.close = function()
 	this.emit('close');
 };
 
-Client.prototype._invite = function()
+Client.prototype._inviteWithDataChannel = function()
 {
-	debug('_invite()');
+	debug('_inviteWithDataChannel()');
 
 	var self = this;
 	var protooPath = '/users/' + settings.remote.username + '/' + settings.remote.uuid;
@@ -110,29 +129,31 @@ Client.prototype._invite = function()
 			gatheringTimeout : 2000
 		});
 
+	var pc = this._pc;
+
 	this._pc.oniceconnectionstatechange = function(event)
 	{
-		if (self._pc.iceConnectionState === 'connected' ||
-				self._pc.iceConnectionState === 'completed')
+		if (pc.iceConnectionState === 'connected' ||
+				pc.iceConnectionState === 'completed')
 		{
-			self._pc.oniceconnectionstatechange = null;
+			pc.oniceconnectionstatechange = null;
 
 			debug('ICE connected');
 		}
 	};
 
-	this._datachannel = this._pc.createDataChannel('swis',
+	this._channel = this._pc.createDataChannel('swis',
 		{
 			protocol   : 'swis',
 			negotiated : true,
 			id         : 666
 		});
 
-	this._datachannel.binaryType = 'arraybuffer';
+	this._channel.binaryType = 'arraybuffer';
 
-	this._datachannel.onopen = function()
+	this._channel.onopen = function()
 	{
-		debug('datachannel open');
+		debug('channel open');
 
 		self._runSwisObserver();
 	};
@@ -218,6 +239,65 @@ Client.prototype._invite = function()
 	}
 };
 
+Client.prototype._inviteWithWebSocket = function()
+{
+	debug('_inviteWithWebSocket()');
+
+	var self = this;
+	var protooPath = '/users/' + settings.remote.username + '/' + settings.remote.uuid;
+	var swisWsRoomId = randomString({ length: 8 }).toLowerCase();
+
+	this._channel = new WebSocket(settings.swisWsUrl + swisWsRoomId, 'swis');
+
+	this._channel.binaryType = 'arraybuffer';
+
+	this._channel.onopen = function()
+	{
+		debug('channel open');
+
+		self._runSwisObserver();
+	};
+
+	createSession();
+
+	function createSession()
+	{
+		self._session = self._protoo.session(protooPath,
+			{
+				swisWsRoomId : webrtcSuported ? null : swisWsRoomId
+			},
+			function(res, error)
+			{
+				if (res && res.isProvisional)
+				{
+					notifications.info('waiting for remote peer to join...');
+				}
+				else if (res && res.isAccept)
+				{
+					debug('session established');
+
+					notifications.info('establishing channel...');
+				}
+				else if (res && res.isReject)
+				{
+					notifications.warning('session rejected: ' + res.status + ' ' + res.reason);
+				}
+				else if (error)
+				{
+					notifications.error('session error: ' + error.toString());
+				}
+			});
+
+		self._session.on('close', function()
+		{
+			notifications.info('session ended');
+
+			self._session = null;
+			self.close();
+		});
+	}
+};
+
 Client.prototype._runSwisObserver = function()
 {
 	debug('_runSwisObserver()');
@@ -225,7 +305,7 @@ Client.prototype._runSwisObserver = function()
 	var self = this;
 	var excluded = '#swis-css,[data-id="swis-button-container"],#swis-widget-toast-container,div.swis-remote-cursor';
 
-	this._observer = new swis.Observer(this._datachannel,
+	this._observer = new swis.Observer(this._channel,
 		{
 			blob  : false,
 			chunk : 16000
