@@ -1,8 +1,8 @@
 {
-  "name": "eFace2Face SWIS",
-  "version": "0.0.2",
+  "name": "See-What-I-See by eFace2Face",
+  "version": "1.0.1",
   "manifest_version": 2,
-  "description": "See-What-I-See by eFace2Face",
+  "description": "See-What-I-see by eFace2Face allows you to watch remotely the contents of a web page and interact with it.",
   "author": "eFace2Face, inc. (https://eface2face.com)",
   "homepage_url": "https://dev.ef2f.com/html/swis/reflector/",
   "background": {
@@ -12,9 +12,14 @@
     "persistent": true
   },
   "browser_action": {
-    "default_icon": "icon.png",
+    "default_icon": "SWIS-128x128.png",
     "default_title": "See-What-I-See"
   },
+  "icons":
+ {
+	"48": "SWIS-48x48.png",
+	"128": "SWIS-128x128.png"
+ },
   "permissions": [
     "activeTab",
     "tabs",
