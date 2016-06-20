@@ -83,7 +83,6 @@ function insertButton()
 			debug('"button:code" event [data:%o]', data);
 
 			settings.setRemoteUsername(data.code);
-
 			runClient();
 		})
 		.data('swis-Button');
@@ -101,6 +100,7 @@ function runClient()
 	client.on('close', function()
 	{
 		buttonWidget.setRunning(false);
+		settings.setRemoteUsername(null);
 	});
 }
 

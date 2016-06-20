@@ -40,7 +40,10 @@ else
 
 settings.setRemoteUsername = function(username)
 {
-	settings.remote.username = username;
+	if (username)
+		settings.remote.username = username;
+	else
+		delete settings.remote.username;
 };
 
 module.exports = settings;

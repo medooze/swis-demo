@@ -86,7 +86,7 @@
 			this._showInput.set(true);
 
 			jquery.Meteor.Tracker.flush();
-			this.element.find('input').focus();
+			this.element.find('input[type="text"]').focus();
 		},
 
 		hideInput: function()
