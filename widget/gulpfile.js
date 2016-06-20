@@ -74,9 +74,10 @@ gulp.task('browserify', function()
 gulp.task('extension', function()
 {
 	return gulp.src(path.join('./dist', PKG.name + '.js'))
-		.pipe(uglify())
+		//.pipe(uglify())
 		.pipe(header(BANNER, { manifest: CHROME_MANIFEST }))
-		.pipe(rename(PKG.name + '.min.js'))
+		//.pipe(rename(PKG.name + '.min.js'))
+		.pipe(rename(PKG.name + '.js'))
 		.pipe(gulp.dest('extension/'));
 });
 
