@@ -154,7 +154,8 @@ class SwisWebSocketRoom
 
 			if (++numMsg <= 5)
 			{
-				this._debug('message #%d from %s: %s', numMsg, peer.name, data.binaryData.toString('hex'));
+				this._debug('message #%d from %s: %s', numMsg, peer.name,
+					data.binaryData.toString('hex').substr(0, 20) + '...');
 			}
 
 			peer.pairedPeer.connection.sendBytes(data.binaryData);
@@ -171,7 +172,8 @@ class SwisWebSocketRoom
 			this._closeRoom();
 		});
 
-		connection.on('error', (error) => {
+		connection.on('error', (error) =>
+		{
 			if (this._closed)
 				return;
 
