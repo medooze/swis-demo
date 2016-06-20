@@ -171,7 +171,7 @@ class SwisWebSocketRoom
 			this._closeRoom();
 		});
 
-		connection.on('error', function(error) {
+		connection.on('error', (error) => {
 			if (this._closed)
 				return;
 
