@@ -9,7 +9,8 @@
 
 		{{#if showInput}}
 		<form data-id="swis-code-form">
-			<input type="text" required placeholder="reflector code">
+			<input type="text" required autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="reflector code">
+			<input type="submit" value="CONNECT">
 		</form>
 		{{/if}}
 	</div>
@@ -53,9 +54,10 @@
 
 					event.preventDefault();
 
-					var input = event.currentTarget.querySelector('input');
+					var input = event.currentTarget.querySelector('input[type="text"]');
+					var value = input.value.toLowerCase();
 
-					self._trigger(':code', event, { code: input.value });
+					self._trigger(':code', event, { code: value });
 				})
 		},
 

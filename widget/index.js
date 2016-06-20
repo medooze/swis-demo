@@ -23,31 +23,20 @@ var buttonWidget = null;
 
 jquery(document).ready(function()
 {
-	if (checkBrowserSupported())
-	{
-		insertCSS();
-		insertButton();
-	}
-});
-
-function checkBrowserSupported()
-{
-	debug('checkBrowserSupported()');
-
 	// Load rtcninja
 	rtcninja();
 
-	if (rtcninja.hasWebRTC())
+	if (!rtcninja.hasWebRTC())
 	{
-		return true;
-	}
-	else
-	{
-		notifications.warning('WebRTC not supported');
+		notifications.info('WebRTC not supported, will use WebSocket');
 
-		return false;
+		Client.setNoWebRTC();
 	}
-}
+
+	// Insert Button HTML and CSS
+	insertCSS();
+	insertButton();
+});
 
 function insertCSS()
 {
@@ -107,7 +96,7 @@ function runClient()
 	buttonWidget.hideInput();
 	buttonWidget.setRunning(true);
 
-	client = new Client();
+	client = new Client({ webrtcSupported: rtcninja.hasWebRTC() });
 
 	client.on('close', function()
 	{

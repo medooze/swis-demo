@@ -115,8 +115,8 @@ function Agent()
 	// PeerConnection instance
 	this._pc = null;
 
-	// DataChannel instance
-	this._datachannel = null;
+	// swis DataChannel/WebSocket instance
+	this._channel = null;
 
 	// protoo Session
 	this._session = null;
@@ -166,12 +166,20 @@ Agent.prototype._handleSession = function(session)
 
 Agent.prototype._join = function()
 {
-	debug('_join()');
+	this._viewWidget.setState('sessionjoined');
+
+	if (!this._session.request.data.swisWsRoomId)
+		this._joinWithDataChannel();
+	else
+		this._joinWithWebSocket();
+};
+
+Agent.prototype._joinWithDataChannel = function()
+{
+	debug('_joinWithDataChannel()');
 
 	var self = this;
 	var session = this._session;
-
-	this._viewWidget.setState('sessionjoined');
 
 	this._pc = new rtcninja.RTCPeerConnection(
 		{
@@ -179,29 +187,31 @@ Agent.prototype._join = function()
 			gatheringTimeout : 2000
 		});
 
+	var pc = this._pc;
+
 	this._pc.oniceconnectionstatechange = function(event)
 	{
-		if (self._pc.iceConnectionState === 'connected' ||
-				self._pc.iceConnectionState === 'completed')
+		if (pc.iceConnectionState === 'connected' ||
+				pc.iceConnectionState === 'completed')
 		{
-			self._pc.oniceconnectionstatechange = null;
+			pc.oniceconnectionstatechange = null;
 
 			debug('ICE connected');
 		}
 	};
 
-	this._datachannel = this._pc.createDataChannel('swis',
+	this._channel = this._pc.createDataChannel('swis',
 		{
 			protocol   : 'swis',
 			negotiated : true,
 			id         : 666
 		});
 
-	this._datachannel.binaryType = 'arraybuffer';
+	this._channel.binaryType = 'arraybuffer';
 
-	this._datachannel.onopen = function()
+	this._channel.onopen = function()
 	{
-		debug('datachannel open');
+		debug('channel open');
 
 		self._runSwisReflector();
 	};
@@ -257,9 +267,31 @@ Agent.prototype._join = function()
 	};
 };
 
+Agent.prototype._joinWithWebSocket = function()
+{
+	debug('_joinWithWebSocket()');
+
+	var self = this;
+	var session = this._session;
+	var swisWsRoomId = session.request.data.swisWsRoomId;
+
+	this._channel = new WebSocket(settings.swisWsUrl + swisWsRoomId, 'swis');
+
+	this._channel.binaryType = 'arraybuffer';
+
+	this._channel.onopen = function()
+	{
+		debug('channel open');
+
+		self._runSwisReflector();
+	};
+
+	session.request.reply(200, 'OK');
+};
+
 Agent.prototype._reject = function()
 {
-	debug('_join()');
+	debug('_reject()');
 
 	this._session.request.reply(480);
 };
@@ -290,7 +322,10 @@ Agent.prototype._closeSession = function()
 
 	// Close swis
 	if (this._reflector)
+	{
 		this._reflector.stop();
+		delete this._reflector;
+	}
 
 	// Remove container scroll event
 	this._container.removeEventListener('scroll', this.oncontainerscroll);
@@ -299,12 +334,22 @@ Agent.prototype._closeSession = function()
 	if (this._session)
 	{
 		try { this._session.send('end'); } catch (error) {}
-		this._session = null;
+		delete this._session;
 	}
 
 	// Close PeerConnection
 	if (this._pc && this._pc.signalingState !== 'closed')
+	{
 		this._pc.close();
+		delete this._pc;
+	}
+
+	// Close channel
+	if (this._channel)
+	{
+		try { this._channel.close(); } catch (error) {}
+		delete this._channel;
+	}
 };
 
 Agent.prototype._runSwisReflector = function()
@@ -315,7 +360,7 @@ Agent.prototype._runSwisReflector = function()
 	var mirror = this._mirror;
 	var container = this._container;
 
-	this._reflector = new swis.Reflector(this._datachannel,
+	this._reflector = new swis.Reflector(this._channel,
 		{
 			blob      : false,
 			chunk     : 16000,

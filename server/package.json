@@ -1,5 +1,5 @@
 {
-  "name": "swis-demo-server",
+  "name": "node-swis-server",
   "version": "0.0.1",
   "description": "",
   "author": "eFace2Face",
@@ -13,7 +13,8 @@
     "gulp": "git+https://github.com/gulpjs/gulp.git#4.0",
     "gulp-jshint": "^2.0.0",
     "jshint": "^2.9.2",
-    "jshint-stylish": "^2.2.0"
+    "jshint-stylish": "^2.2.0",
+    "websocket": "^1.0.23"
   },
   "scripts": {
     "start": "node index.js"
