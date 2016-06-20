@@ -28,7 +28,7 @@ else
 	settings.swisWsUrl = 'wss://dev.ef2f.com/cobrowse-data/';
 	settings.local =
 	{
-		username : 'reflector-' + randomString({ length: 6 }).toLowerCase(),
+		username : randomString({ length: 6 }).toLowerCase(),
 		uuid     : 'abcd1234'
 	};
 }
