@@ -3,3 +3,4 @@ build/
 dist/
 widget/extension/swis-widget.min.js
 npm-debug.log
+/widget/extension/swis-widget.js
