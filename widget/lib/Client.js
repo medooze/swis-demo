@@ -320,6 +320,7 @@ Client.prototype._runSwisObserver = function()
 			var remoteCursorContainer = document.createElement('div');
 
 			remoteCursorContainer.classList.add('swis-remote-cursor-container');
+
 			self._remoteCursor = document.createElement('div');
 			self._remoteCursor.classList.add('swis-remote-cursor');
 			remoteCursorContainer.appendChild(self._remoteCursor);

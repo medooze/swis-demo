@@ -381,8 +381,8 @@ Agent.prototype._runSwisReflector = function()
 
 	this._reflector.on('scroll', function(data)
 	{
-		container.scrollTop  = data.top;
 		container.scrollLeft = data.left;
+		container.scrollTop  = data.top;
 	});
 
 	// Make the mirror view visible
