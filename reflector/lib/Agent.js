@@ -390,8 +390,6 @@ Agent.prototype._runSwisReflector = function()
 
 	container.addEventListener('scroll', (this.oncontainerscroll = function(event)
 	{
-		updateRemoteCursor();
-
 		self._reflector.scroll(container.scrollLeft, container.scrollTop);
 	}));
 
@@ -406,20 +404,13 @@ Agent.prototype._runSwisReflector = function()
 			container.insertBefore(self._remoteCursor, mirror);
 		}
 
-		updateRemoteCursor(data.x, data.y);
+		// Update remote cursor position
+		self._remoteCursor.style.left = data.x + 'px';
+		self._remoteCursor.style.top = data.y + 'px';
 
 		// Make it visible (just in case)
 		self._remoteCursor.classList.remove('hidden');
 	});
-
-	function updateRemoteCursor(x, y)
-	{
-		if (!self._remoteCursor || x === undefined)
-			return;
-
-		self._remoteCursor.style.left = x + 'px';
-		self._remoteCursor.style.top = y + 'px';
-	}
 
 	notifications.success('swis running');
 };
