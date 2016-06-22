@@ -328,17 +328,10 @@ Client.prototype._runSwisObserver = function()
 			document.body.appendChild(remoteCursorContainer);
 		}
 
-		updateRemoteCursor(data.x, data.y);
+		// Update remote cursor position
+		self._remoteCursor.style.left = data.x - document.body.scrollLeft + 'px';
+		self._remoteCursor.style.top = data.y - document.body.scrollTop + 'px';
 	});
-
-	function updateRemoteCursor(x, y)
-	{
-		if (!self._remoteCursor || x === undefined)
-			return;
-
-		self._remoteCursor.style.left = x - document.body.scrollLeft + 'px';
-		self._remoteCursor.style.top = y - document.body.scrollTop + 'px';
-	}
 
 	notifications.success('swis running');
 };
