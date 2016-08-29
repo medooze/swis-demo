@@ -116,10 +116,10 @@ let swisWebSocketServer = new SwisWebSocketServer(
 	});
 
 // Dump WebSocket server periodically
-setInterval(() =>
-{
-	swisWebSocketServer.dump();
-}, 1000 * 60 *2);
+// setInterval(() =>
+// {
+// 	swisWebSocketServer.dump();
+// }, 1000 * 60 *2);
 
 process.on('exit', function(code)
 {
