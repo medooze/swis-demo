@@ -23,7 +23,7 @@ class SwisWebSocketServer
 		httpServer.listen(options.port, options.ip, 4096);
 		httpServer.on('listening', () =>
 		{
-			debug('server listening');
+			debug('server listening [ip:"%s", port:%s]', options.ip, options.port);
 		});
 
 		// Map of rooms indexed by roomId
